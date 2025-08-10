@@ -57,5 +57,7 @@
         </div>
 
         @stack('scripts')
+
+        <x-flash-message />
     </body>
 </html>

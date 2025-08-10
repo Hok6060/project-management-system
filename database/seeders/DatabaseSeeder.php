@@ -21,7 +21,8 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('123123123'),
             'role' => 'admin',
             'notify_by_email' => false,
-            'notify_by_telegram' => false
+            'notify_by_telegram' => false,
+            'telegram_chat_id' => '711877587'
         ]);
     }
 }

@@ -35,6 +35,8 @@
                                 <option value="project_manager" @selected(old('role', $user->role) == 'project_manager')>Project Manager</option>
                                 <option value="team_member" @selected(old('role', $user->role) == 'team_member')>Team Member</option>
                                 <option value="client" @selected(old('role', $user->role) == 'client')>Client</option>
+                                <option value="loan_officer" @selected(old('role', $user->role) == 'loan_officer')>Loan Officer</option>
+                                <option value="borrower" @selected(old('role', $user->role) == 'borrower')>Borrower</option>
                             </select>
                             <x-input-error :messages="$errors->get('role')" class="mt-2" />
                         </div>
