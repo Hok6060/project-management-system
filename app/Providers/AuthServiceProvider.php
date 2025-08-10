@@ -2,14 +2,14 @@
 
 namespace App\Providers;
 
-use App\Models\Project;
-use App\Models\Task;
-use App\Models\Attachment;
-use App\Models\Comment;
-use App\Policies\ProjectPolicy;
-use App\Policies\TaskPolicy; 
-use App\Policies\AttachmentPolicy; 
-use App\Policies\CommentPolicy;
+use App\ProjectManagement\Models\Project;
+use App\ProjectManagement\Models\Task;
+use App\ProjectManagement\Models\Attachment;
+use App\ProjectManagement\Models\Comment;
+use App\ProjectManagement\Policies\ProjectPolicy;
+use App\ProjectManagement\Policies\TaskPolicy; 
+use App\ProjectManagement\Policies\AttachmentPolicy; 
+use App\ProjectManagement\Policies\CommentPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider

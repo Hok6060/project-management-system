@@ -1,13 +1,13 @@
 <?php
 
-use App\Http\Controllers\AttachmentController;
-use App\Http\Controllers\CommentController; 
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\TaskController;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\AdminController;
+use App\ProjectManagement\Http\Controllers\AttachmentController;
+use App\ProjectManagement\Http\Controllers\CommentController; 
+use App\ProjectManagement\Http\Controllers\DashboardController;
+use App\ProjectManagement\Http\Controllers\ProfileController;
+use App\ProjectManagement\Http\Controllers\ProjectController;
+use App\ProjectManagement\Http\Controllers\TaskController;
+use App\ProjectManagement\Http\Controllers\NotificationController;
+use App\ProjectManagement\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -60,7 +60,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // Admin Routes
-Route::middleware(['auth', \App\Http\Middleware\IsAdmin::class])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', \App\ProjectManagement\Http\Middleware\IsAdmin::class])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard'); 
     Route::get('/users', [AdminController::class, 'indexUsers'])->name('users.index');
     Route::get('/users/{user}/edit', [AdminController::class, 'editUser'])->name('users.edit');

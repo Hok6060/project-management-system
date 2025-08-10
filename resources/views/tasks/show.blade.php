@@ -49,7 +49,7 @@
                     <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Comments</h3>
                     
                     <!-- New Comment Form -->
-                    @can('create', [App\Models\Comment::class, $task])
+                    @can('create', [App\ProjectManagement\Models\Comment::class, $task])
                         <form action="{{ route('comments.store', $task) }}" method="POST" class="mb-6">
                             @csrf
                             <div>
@@ -103,7 +103,7 @@
                     <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Attachments</h3>
 
                     <!-- New Attachment Form -->
-                    @can('create', [App\Models\Attachment::class, $task])
+                    @can('create', [App\ProjectManagement\Models\Attachment::class, $task])
                         <form action="{{ route('attachments.store', $task) }}" method="POST" enctype="multipart/form-data" class="mb-6 border-b border-gray-200 dark:border-gray-700 pb-6">
                             @csrf
                             <div>

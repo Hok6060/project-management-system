@@ -77,7 +77,7 @@
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Tasks</h3>
-                        @can('create', [App\Models\Task::class, $project])
+                        @can('create', [App\ProjectManagement\Models\Task::class, $project])
                             <a href="{{ route('tasks.create', $project) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm">
                                 Add Task
                             </a>

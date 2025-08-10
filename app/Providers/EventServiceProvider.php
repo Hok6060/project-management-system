@@ -2,14 +2,14 @@
 
 namespace App\Providers;
 
-use App\Models\Task;
-use App\Models\Project;
-use App\Models\Comment;
-use App\Models\Attachment;
-use App\Observers\TaskObserver;
-use App\Observers\ProjectObserver;
-use App\Observers\CommentObserver;
-use App\Observers\AttachmentObserver;
+use App\ProjectManagement\Models\Task;
+use App\ProjectManagement\Models\Project;
+use App\ProjectManagement\Models\Comment;
+use App\ProjectManagement\Models\Attachment;
+use App\ProjectManagement\Observers\TaskObserver;
+use App\ProjectManagement\Observers\ProjectObserver;
+use App\ProjectManagement\Observers\CommentObserver;
+use App\ProjectManagement\Observers\AttachmentObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;

@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Models\Project;
-use App\Policies\ProjectPolicy;
+use App\ProjectManagement\Models\Project;
+use App\ProjectManagement\Policies\ProjectPolicy;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use App\View\Composers\NotificationComposer;
