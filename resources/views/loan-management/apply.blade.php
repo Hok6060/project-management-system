@@ -1,0 +1,131 @@
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{ __('Apply for a New Loan') }}
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900 dark:text-gray-100">
+                    <form method="POST" action="{{ route('loans.store') }}">
+                        @csrf
+
+                        <!-- Loan Type -->
+                        <div>
+                            <x-input-label for="loan_type_id" :value="__('Select Loan Type')" />
+                            <select id="loan_type_id" name="loan_type_id" class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
+                                <option value="">-- Please choose a loan type --</option>
+                                @foreach ($loanTypes as $type)
+                                    <option 
+                                        value="{{ $type->id }}" 
+                                        {{ old('loan_type_id') == $type->id ? 'selected' : '' }}
+                                        data-min-rate="{{ $type->min_interest_rate }}"
+                                        data-max-rate="{{ $type->max_interest_rate }}"
+                                        data-min-term="{{ $type->min_term }}"
+                                        data-max-term="{{ $type->max_term }}"
+                                    >
+                                        {{ $type->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <x-input-error :messages="$errors->get('loan_type_id')" class="mt-2" />
+                        </div>
+                        
+                        <!-- Customer -->
+                        <div class="mt-4">
+                            <x-input-label for="customer_id" :value="__('Select Customer')" />
+                            <select id="customer_id" name="customer_id" class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
+                                <option value="">-- Please choose a customer --</option>
+                                @foreach ($customers as $customer)
+                                    <option value="{{ $customer->id }}" {{ old('customer_id') == $customer->id ? 'selected' : '' }}>
+                                        {{ $customer->full_name }} ({{ $customer->customer_identifier }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            <x-input-error :messages="$errors->get('customer_id')" class="mt-2" />
+                        </div>
+
+                        <!-- Loan Officer -->
+                        <div class="mt-4">
+                            <x-input-label for="loan_officer_id" :value="__('Assign to Loan Officer')" />
+                            <select id="loan_officer_id" name="loan_officer_id" class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
+                                <option value="">-- Unassigned --</option>
+                                @foreach ($loanOfficers as $officer)
+                                    <option value="{{ $officer->id }}" {{ old('loan_officer_id') == $officer->id ? 'selected' : '' }}>
+                                        {{ $officer->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <x-input-error :messages="$errors->get('loan_officer_id')" class="mt-2" />
+                        </div>
+
+                        <!-- Principal Amount -->
+                        <div class="mt-4">
+                            <x-input-label for="principal_amount" :value="__('Loan Amount ($)')" />
+                            <x-text-input id="principal_amount" class="block mt-1 w-full" type="number" name="principal_amount" :value="old('principal_amount')" required step="100" />
+                            <x-input-error :messages="$errors->get('principal_amount')" class="mt-2" />
+                        </div>
+
+                        <!-- Interest Rate -->
+                        <div class="mt-4">
+                            <x-input-label for="interest_rate" :value="__('Interest Rate (%)')" />
+                            <x-text-input id="interest_rate" class="block mt-1 w-full" type="number" name="interest_rate" :value="old('interest_rate')" required step="0.01" />
+                            <p id="rate-helper" class="mt-1 text-xs text-gray-500 dark:text-gray-400"></p>
+                            <x-input-error :messages="$errors->get('interest_rate')" class="mt-2" />
+                        </div>
+
+                        <!-- Term -->
+                        <div class="mt-4">
+                            <x-input-label for="term" :value="__('Loan Term (in Months)')" />
+                            <x-text-input id="term" class="block mt-1 w-full" type="number" name="term" :value="old('term')" required />
+                            <p id="term-helper" class="mt-1 text-xs text-gray-500 dark:text-gray-400"></p>
+                            <x-input-error :messages="$errors->get('term')" class="mt-2" />
+                        </div>
+
+                        <div class="flex items-center justify-end mt-6">
+                            <a href="{{ route('loans.admin.index') }}" class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
+                                {{ __('Cancel') }}
+                            </a>
+                            <x-primary-button class="ms-4">
+                                {{ __('Submit Application') }}
+                            </x-primary-button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const typeSelect = document.getElementById('loan_type_id');
+            const rateHelper = document.getElementById('rate-helper');
+            const termHelper = document.getElementById('term-helper');
+
+            function updateHelpers() {
+                const selectedOption = typeSelect.options[typeSelect.selectedIndex];
+                const minRate = selectedOption.dataset.minRate;
+                const maxRate = selectedOption.dataset.maxRate;
+                const minTerm = selectedOption.dataset.minTerm;
+                const maxTerm = selectedOption.dataset.maxTerm;
+
+                if (minRate) {
+                    rateHelper.textContent = `Must be between ${minRate}% and ${maxRate}%.`;
+                    termHelper.textContent = `Must be between ${minTerm} and ${maxTerm} months.`;
+                } else {
+                    rateHelper.textContent = '';
+                    termHelper.textContent = '';
+                }
+            }
+
+            typeSelect.addEventListener('change', updateHelpers);
+            
+            // Run on page load in case a value is already selected
+            updateHelpers();
+        });
+    </script>
+    @endpush
+</x-app-layout>

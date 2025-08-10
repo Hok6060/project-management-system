@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+
 use App\ProjectManagement\Http\Controllers\AttachmentController;
 use App\ProjectManagement\Http\Controllers\CommentController; 
 use App\ProjectManagement\Http\Controllers\DashboardController;
@@ -8,7 +10,10 @@ use App\ProjectManagement\Http\Controllers\ProjectController;
 use App\ProjectManagement\Http\Controllers\TaskController;
 use App\ProjectManagement\Http\Controllers\NotificationController;
 use App\ProjectManagement\Http\Controllers\AdminController;
-use Illuminate\Support\Facades\Route;
+
+use App\LoanManagement\Http\Controllers\LoanTypeController;
+use App\LoanManagement\Http\Controllers\LoanController;
+use App\LoanManagement\Http\Controllers\CustomerController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -51,6 +56,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead'); 
     Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy'); 
     Route::post('/notifications/clear-read', [NotificationController::class, 'clearRead'])->name('notifications.clearRead');
+
+    // Loan Routes
+    Route::get('/loans/apply', [LoanController::class, 'create'])->name('loans.create');
+    Route::post('/loans', [LoanController::class, 'store'])->name('loans.store');
 });
 
 Route::middleware('auth')->group(function () {
@@ -59,15 +68,32 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Admin Routes
+// Admin Routes Groups
 Route::middleware(['auth', \App\ProjectManagement\Http\Middleware\IsAdmin::class])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard'); 
+
+    // User Management Routes
     Route::get('/users', [AdminController::class, 'indexUsers'])->name('users.index');
     Route::get('/users/{user}/edit', [AdminController::class, 'editUser'])->name('users.edit');
     Route::patch('/users/{user}', [AdminController::class, 'updateUser'])->name('users.update');
     Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('users.destroy');
 
+    // Chart Routes
     Route::get('/chart/project-status', [AdminController::class, 'projectStatusChartData'])->name('chart.project.status');
+
+    // Loan Type Management Routes
+    Route::resource('loan-types', LoanTypeController::class);
+
+    // Customer Management Routes
+    Route::resource('customers', CustomerController::class);
+});
+
+// --- Loan Management Routes (for Admins and Loan Officers) ---
+Route::middleware(['auth', \App\LoanManagement\Http\Middleware\CanManageLoans::class])->prefix('loan-management')->name('loans.admin.')->group(function () {
+    Route::get('/loans', [LoanController::class, 'index'])->name('index');
+    Route::get('/loans/{loan}', [LoanController::class, 'show'])->name('show');
+    Route::patch('/loans/{loan}', [LoanController::class, 'update'])->name('update');
+    Route::patch('/loans/{loan}/assign', [LoanController::class, 'assignOfficer'])->name('assign');
 });
 
 require __DIR__.'/auth.php';

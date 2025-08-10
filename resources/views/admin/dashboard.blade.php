@@ -53,9 +53,16 @@
                     </div>
                 </div>
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mt-6 mb-4 px-6">Menu</h3>
+                    <div class="px-6">
                         <a href="{{ route('admin.users.index') }}" class="font-semibold text-blue-600 dark:text-blue-400 hover:underline">
                             Go to User Management &rarr;
+                        </a>
+                        <a href="{{ route('admin.loan-types.index') }}" class="block font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                            Go to Loan Type Management &rarr;
+                        </a>
+                        <a href="{{ route('admin.customers.index') }}" class="block font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                            Go to Customer Management &rarr;
                         </a>
                     </div>
                 </div>
