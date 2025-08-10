@@ -23,6 +23,32 @@ class AdminController extends Controller
     }
 
     /**
+     * Show the form for creating a new user.
+     */
+    public function createUser()
+    {
+        return view('admin.users.create');
+    }
+
+    /**
+     * Store a newly created user in storage.
+     */
+    public function storeUser(Request $request)
+    {
+        $validatedData = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'role' => ['required', Rule::in(['admin', 'project_manager', 'team_member', 'client', 'loan_officer'])],
+            'status' => ['required', Rule::in(['active', 'inactive'])],
+        ]);
+
+        User::create($validatedData);
+
+        return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
+    }
+
+    /**
      * Show the form for editing the specified user.
      */
     public function editUser(User $user)

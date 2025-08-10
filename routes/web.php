@@ -74,6 +74,8 @@ Route::middleware(['auth', \App\ProjectManagement\Http\Middleware\IsAdmin::class
 
     // User Management Routes
     Route::get('/users', [AdminController::class, 'indexUsers'])->name('users.index');
+    Route::get('/users/create', [AdminController::class, 'createUser'])->name('users.create');
+    Route::post('/users', [AdminController::class, 'storeUser'])->name('users.store');
     Route::get('/users/{user}/edit', [AdminController::class, 'editUser'])->name('users.edit');
     Route::patch('/users/{user}', [AdminController::class, 'updateUser'])->name('users.update');
     Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('users.destroy');
