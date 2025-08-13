@@ -18,6 +18,8 @@ class Loan extends Model
         'principal_amount',
         'interest_rate',
         'term',
+        'payment_frequency',
+        'interest_free_periods',
         'status',
         'application_date',
         'approval_date',

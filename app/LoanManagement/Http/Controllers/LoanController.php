@@ -94,6 +94,9 @@ class LoanController extends Controller
             'principal_amount' => ['required', 'numeric', 'min:1'],
             'interest_rate' => ['required', 'numeric', 'min:'.$loanType->min_interest_rate, 'max:'.$loanType->max_interest_rate],
             'term' => ['required', 'integer', 'min:'.$loanType->min_term, 'max:'.$loanType->max_term],
+            'interest_free_periods' => ['nullable', 'integer', 'min:0', 'lte:term'],
+            'first_payment_date' => ['required', 'date', 'after:today'],
+            'payment_frequency' => ['required', Rule::in(['monthly', 'quarterly', 'semi_annually'])],
             'loan_officer_id' => ['nullable', 'exists:users,id'],
         ]);
 
@@ -105,8 +108,11 @@ class LoanController extends Controller
             'principal_amount' => $validatedData['principal_amount'],
             'interest_rate' => $validatedData['interest_rate'],
             'term' => $validatedData['term'],
+            'interest_free_periods' => $validatedData['interest_free_periods'] ?? 0,
+            'payment_frequency' => $validatedData['payment_frequency'],
             'status' => 'pending',
             'application_date' => now(),
+            'first_payment_date' => $validatedData['first_payment_date'],
         ]);
 
         return redirect()->route('loans.admin.index')->with('success', 'Loan application submitted successfully!');

@@ -18,28 +18,40 @@
                     <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Loan Details</h3>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div>
+                            <h4 class="font-semibold">Application Date</h4>
+                            <p class="text-gray-600 dark:text-gray-400">{{ \Carbon\Carbon::parse($loan->application_date)->format('M d, Y') }}</p>
+                        </div>
+                        <div>
                             <h4 class="font-semibold">Status</h4>
                             <p class="text-gray-600 dark:text-gray-400">{{ ucfirst($loan->status) }}</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold">Loan Type</h4>
+                            <p class="text-gray-600 dark:text-gray-400">{{ $loan->LoanType->name }}</p>
                         </div>
                         <div>
                             <h4 class="font-semibold">Principal Amount</h4>
                             <p class="text-gray-600 dark:text-gray-400">${{ number_format($loan->principal_amount, 2) }}</p>
                         </div>
                         <div>
-                            <h4 class="font-semibold">Interest Rate</h4>
-                            <p class="text-gray-600 dark:text-gray-400">{{ $loan->interest_rate }}%</p>
-                        </div>
-                        <div>
                             <h4 class="font-semibold">Term</h4>
                             <p class="text-gray-600 dark:text-gray-400">{{ $loan->term }} months</p>
                         </div>
                         <div>
-                            <h4 class="font-semibold">Loan Type</h4>
-                            <p class="text-gray-600 dark:text-gray-400">{{ $loan->LoanType->name }}</p>
+                            <h4 class="font-semibold">Payment Frequency</h4>
+                            <p class="text-gray-600 dark:text-gray-400">{{ ucwords(str_replace('_', ' ', $loan->payment_frequency)) }}</p>
                         </div>
-                         <div>
-                            <h4 class="font-semibold">Application Date</h4>
-                            <p class="text-gray-600 dark:text-gray-400">{{ \Carbon\Carbon::parse($loan->application_date)->format('M d, Y') }}</p>
+                        <div>
+                            <h4 class="font-semibold">Interest Rate</h4>
+                            <p class="text-gray-600 dark:text-gray-400">{{ $loan->interest_rate }}%</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold">Free Interest Period</h4>
+                            <p class="text-gray-600 dark:text-gray-400">{{ $loan->interest_free_periods }} months</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold">First Payment Date</h4>
+                            <p class="text-gray-600 dark:text-gray-400">{{ \Carbon\Carbon::parse($loan->first_payment_date)->format('M d, Y') }}</p>
                         </div>
                     </div>
                 </div>

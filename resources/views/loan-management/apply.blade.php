@@ -84,6 +84,31 @@
                             <x-input-error :messages="$errors->get('term')" class="mt-2" />
                         </div>
 
+                        <!-- Interest-Free Periods -->
+                        <div class="mt-4">
+                            <x-input-label for="interest_free_periods" :value="__('Promotional Interest-Free Periods (Months)')" />
+                            <x-text-input id="interest_free_periods" class="block mt-1 w-full" type="number" name="interest_free_periods" :value="old('interest_free_periods', 0)" />
+                            <x-input-error :messages="$errors->get('interest_free_periods')" class="mt-2" />
+                        </div>
+
+                        <!-- Payment Frequency -->
+                        <div class="mt-4">
+                            <x-input-label for="payment_frequency" :value="__('Payment Frequency')" />
+                            <select id="payment_frequency" name="payment_frequency" class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                <option value="monthly" @selected(old('payment_frequency') == 'monthly')>Monthly</option>
+                                <option value="quarterly" @selected(old('payment_frequency') == 'quarterly')>Quarterly</option>
+                                <option value="semi_annually" @selected(old('payment_frequency') == 'semi_annually')>Semi-Annually</option>
+                            </select>
+                            <x-input-error :messages="$errors->get('payment_frequency')" class="mt-2" />
+                        </div>
+
+                        <!-- First Payment Date -->
+                        <div class="mt-4">
+                            <x-input-label for="first_payment_date" :value="__('First Payment Due Date')" />
+                            <x-text-input id="first_payment_date" class="block mt-1 w-full" type="date" name="first_payment_date" :value="old('first_payment_date')" required />
+                            <x-input-error :messages="$errors->get('first_payment_date')" class="mt-2" />
+                        </div>
+
                         <div class="flex items-center justify-end mt-6">
                             <a href="{{ route('loans.admin.index') }}" class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
                                 {{ __('Cancel') }}
