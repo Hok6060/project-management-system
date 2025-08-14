@@ -104,15 +104,28 @@
                             @method('PATCH')
 
                             <div class="flex items-center space-x-4">
-                                <!-- Approve Button -->
-                                <x-primary-button name="status" value="approved" onclick="return confirm('Are you sure you want to approve this loan application?')">
-                                    {{ __('Approve') }}
-                                </x-primary-button>
+                                <form method="POST" action="{{ route('loans.admin.update', $loan) }}">
+                                    @csrf
+                                    @method('PATCH')
+                                    <x-primary-button name="status" value="approved" onclick="return confirm('Are you sure you want to approve this loan application?')">
+                                        {{ __('Approve') }}
+                                    </x-primary-button>
+                                </form>
 
-                                <!-- Reject Button -->
-                                <x-danger-button name="status" value="rejected" onclick="return confirm('Are you sure you want to reject this loan application?')">
-                                    {{ __('Reject') }}
-                                </x-danger-button>
+                                <form method="POST" action="{{ route('loans.admin.update', $loan) }}">
+                                    @csrf
+                                    @method('PATCH')
+                                    <x-danger-button name="status" value="rejected" onclick="return confirm('Are you sure you want to reject this loan application?')">
+                                        {{ __('Reject') }}
+                                    </x-danger-button>
+                                </form>
+                                
+                                <form method="POST" action="{{ route('loans.admin.cancel', $loan) }}">
+                                    @csrf
+                                    <x-secondary-button type="submit" onclick="return confirm('Are you sure you want to cancel this loan application?')">
+                                        {{ __('Cancel') }}
+                                    </x-secondary-button>
+                                </form>
                             </div>
                         </form>
                     @else

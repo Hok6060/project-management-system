@@ -97,6 +97,7 @@ Route::middleware(['auth', \App\LoanManagement\Http\Middleware\CanManageLoans::c
     Route::get('/loans/{loan}/edit', [LoanController::class, 'edit'])->name('edit');
     Route::patch('/loans/{loan}', [LoanController::class, 'update'])->name('update');
     Route::patch('/loans/{loan}/assign', [LoanController::class, 'assignOfficer'])->name('assign');
+    Route::post('/loans/{loan}/cancel', [LoanController::class, 'cancel'])->name('cancel');
 });
 
 require __DIR__.'/auth.php';

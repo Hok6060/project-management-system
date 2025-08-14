@@ -170,4 +170,20 @@ class LoanController extends Controller
 
         return redirect()->route('loans.admin.index', $loan)->with('success', 'Loan Officer has been assigned.');
     }
+
+    /**
+     * Cancel a pending loan application.
+     */
+    public function cancel(Loan $loan)
+    {
+        // Only pending loans can be cancelled
+        if ($loan->status !== 'pending') {
+            return back()->with('error', 'Only pending loans can be cancelled.');
+        }
+
+        $loan->status = 'cancelled';
+        $loan->save();
+
+        return redirect()->route('loans.admin.show', $loan)->with('success', 'Loan application has been cancelled.');
+    }
 }
