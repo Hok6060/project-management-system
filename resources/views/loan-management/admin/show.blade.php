@@ -4,9 +4,16 @@
             <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
                 {{ __('Loan Application') }}: {{ $loan->loan_identifier }}
             </h2>
-            <a href="{{ route('loans.admin.index') }}" class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
-                &larr; Back to All Applications
-            </a>
+            <div class="flex items-center space-x-4">
+                @if ($loan->status === 'pending')
+                    <a href="{{ route('loans.admin.edit', $loan) }}" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded text-sm">
+                        Edit Application
+                    </a>
+                @endif
+                <a href="{{ route('loans.admin.index') }}" class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
+                    &larr; Back to All Applications
+                </a>
+            </div>
         </div>
     </x-slot>
 
@@ -65,6 +72,14 @@
                         <div>
                             <h4 class="font-semibold">Name</h4>
                             <p class="text-gray-600 dark:text-gray-400">{{ $loan->customer->full_name }}</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold">Phone</h4>
+                            <p class="text-gray-600 dark:text-gray-400">{{ $loan->customer->phone_number }}</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold">Address</h4>
+                            <p class="text-gray-600 dark:text-gray-400">{{ $loan->customer->address }}</p>
                         </div>
                         <div>
                             <h4 class="font-semibold">Email</h4>

@@ -57,24 +57,63 @@ class LoanController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Show the form for editing the specified resource.
      */
-    public function update(Request $request, Loan $loan, LoanCalculationService $loanCalculator) // <-- Inject the service
+    public function edit(Loan $loan)
     {
-        $validatedData = $request->validate([
-            'status' => ['required', Rule::in(['approved', 'rejected'])],
-        ]);
-
-        $loan->status = $validatedData['status'];
-
-        if ($validatedData['status'] === 'approved') {
-            $loan->approval_date = now();
-            $loanCalculator->generateSchedule($loan);
+        // Prevent editing if the loan is not pending
+        if ($loan->status !== 'pending') {
+            return redirect()->route('loans.admin.show', $loan)->with('error', 'Only pending loans can be edited.');
         }
 
-        $loan->save();
+        $loanTypes = LoanType::where('is_active', true)->orderBy('name')->get();
+        $customers = Customer::orderBy('first_name')->get();
+        $loanOfficers = User::whereIn('role', ['admin', 'loan_officer'])->orderBy('name')->get();
 
-        return redirect()->route('loans.admin.index', $loan)->with('success', 'Loan application has been updated.');
+        return view('loan-management.admin.edit', compact('loan', 'loanTypes', 'customers', 'loanOfficers'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Loan $loan, LoanCalculationService $loanCalculator)
+    {
+        if ($request->has('status')) {
+            $validatedData = $request->validate([
+                'status' => ['required', Rule::in(['approved', 'rejected'])],
+            ]);
+
+            if (!$loan->loan_officer_id) {
+                $loan->loan_officer_id = Auth::id();
+            }
+            $loan->status = $validatedData['status'];
+            if ($validatedData['status'] === 'approved') {
+                $loan->approval_date = now();
+                $loanCalculator->generateSchedule($loan);
+            }
+            $loan->save();
+            return redirect()->route('loans.admin.show', $loan)->with('success', 'Loan application status has been updated.');
+        }
+
+        $loanType = LoanType::find($request->loan_type_id);
+
+        $validatedData = $request->validate([
+            'customer_id' => ['required', 'exists:customers,id'],
+            'loan_type_id' => ['required', 'exists:loan_types,id'],
+            'principal_amount' => ['required', 'numeric', 'min:1'],
+            'interest_rate' => ['required', 'numeric', 'min:'.$loanType->min_interest_rate, 'max:'.$loanType->max_interest_rate],
+            'term' => ['required', 'integer', 'min:'.$loanType->min_term, 'max:'.$loanType->max_term],
+            'interest_free_periods' => ['nullable', 'integer', 'min:0', 'lte:term'],
+            'payment_frequency' => ['required', Rule::in(['monthly', 'quarterly', 'semi_annually'])],
+            'first_payment_date' => ['required', 'date', 'after:today'],
+            'loan_officer_id' => ['nullable', 'exists:users,id'],
+        ]);
+        
+        $validatedData['interest_free_periods'] = $request->interest_free_periods ?? 0;
+
+        $loan->update($validatedData);
+
+        return redirect()->route('loans.admin.show', $loan)->with('success', 'Loan application has been updated successfully.');
     }
 
     /**

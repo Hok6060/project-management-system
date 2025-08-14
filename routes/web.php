@@ -94,6 +94,7 @@ Route::middleware(['auth', \App\ProjectManagement\Http\Middleware\IsAdmin::class
 Route::middleware(['auth', \App\LoanManagement\Http\Middleware\CanManageLoans::class])->prefix('loan-management')->name('loans.admin.')->group(function () {
     Route::get('/loans', [LoanController::class, 'index'])->name('index');
     Route::get('/loans/{loan}', [LoanController::class, 'show'])->name('show');
+    Route::get('/loans/{loan}/edit', [LoanController::class, 'edit'])->name('edit');
     Route::patch('/loans/{loan}', [LoanController::class, 'update'])->name('update');
     Route::patch('/loans/{loan}/assign', [LoanController::class, 'assignOfficer'])->name('assign');
 });
