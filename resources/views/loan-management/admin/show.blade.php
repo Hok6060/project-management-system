@@ -93,59 +93,87 @@
                 </div>
             </div>
 
-            <!-- Loan Actions Card -->
+            <!-- Assign Loan Officer Card -->
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Loan Actions</h3>
-
-                    @if ($loan->status === 'pending')
-                        <form method="POST" action="{{ route('loans.admin.update', $loan) }}">
-                            @csrf
-                            @method('PATCH')
-
-                            <div class="flex items-center space-x-4">
-                                <form method="POST" action="{{ route('loans.admin.update', $loan) }}">
-                                    @csrf
-                                    @method('PATCH')
-                                    <x-primary-button name="status" value="approved" onclick="return confirm('Are you sure you want to approve this loan application?')">
-                                        {{ __('Approve') }}
-                                    </x-primary-button>
-                                </form>
-
-                                <form method="POST" action="{{ route('loans.admin.update', $loan) }}">
-                                    @csrf
-                                    @method('PATCH')
-                                    <x-danger-button name="status" value="rejected" onclick="return confirm('Are you sure you want to reject this loan application?')">
-                                        {{ __('Reject') }}
-                                    </x-danger-button>
-                                </form>
-                                
-                                <form method="POST" action="{{ route('loans.admin.cancel', $loan) }}">
-                                    @csrf
-                                    <x-secondary-button type="submit" onclick="return confirm('Are you sure you want to cancel this loan application?')">
-                                        {{ __('Cancel') }}
-                                    </x-secondary-button>
-                                </form>
-                            </div>
-                        </form>
-                    @else
-                        <p class="text-sm text-gray-600 dark:text-gray-400">
-                            This loan application has already been processed. The status is: <strong>{{ ucfirst($loan->status) }}</strong>.
-                        </p>
-                    @endif
-
-                    <div class="mt-4 text-sm text-gray-500 dark:text-gray-400">
-                        @if ($loan->loan_officer_id)
-                            Assigned to: <strong>{{ $loan->loanOfficer->name }}</strong>
-                        @else
-                            This loan is unassigned. Approving or rejecting will assign it to you.
-                        @endif
-                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Loan Officer</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Currently Assigned to: <strong>{{ $loan->loanOfficer->name ?? 'Unassigned' }}</strong></p>
                 </div>
             </div>
 
-            @include('loan-management.admin._repayment-schedule', ['schedules' => $schedules])
+            <!-- Loan Actions Card -->
+            @if ($loan->status === 'pending')
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900 dark:text-gray-100">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Loan Actions</h3>
+                    <div class="flex items-center space-x-4">
+                        <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'approve-loan-modal')">{{ __('Approve') }}</x-primary-button>
+                        <x-danger-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'reject-loan-modal')">{{ __('Reject') }}</x-danger-button>
+                        <x-secondary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'cancel-loan-modal')">{{ __('Cancel') }}</x-secondary-button>
+                    </div>
+                </div>
+            </div>
+            @endif
+
+            <!-- Activity Log -->
+            @include('loan-management.admin._activity-log', ['loan' => $loan])
+
+            <!-- Repayment Schedule -->
+            @include('loan-management.admin._repayment-schedule', ['loan' => $loan, 'schedules' => $schedules])
             
         </div>
     </div>
+
+    <!-- Approve Modal -->
+    <x-modal name="approve-loan-modal" focusable>
+        <form method="post" action="{{ route('loans.admin.update', $loan) }}" class="p-6">
+            @csrf
+            @method('patch')
+            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">Approve Loan Application?</h2>
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Please provide a comment for this action.</p>
+            <div class="mt-6">
+                <x-input-label for="details_approve" value="Comment" class="sr-only" />
+                <textarea id="details_approve" name="details" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">Approved</textarea>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <x-secondary-button x-on:click="$dispatch('close')">{{ __('Cancel') }}</x-secondary-button>
+                <x-primary-button class="ms-3" name="status" value="approved">{{ __('Approve Loan') }}</x-primary-button>
+            </div>
+        </form>
+    </x-modal>
+
+    <!-- Reject Modal -->
+    <x-modal name="reject-loan-modal" focusable>
+        <form method="post" action="{{ route('loans.admin.update', $loan) }}" class="p-6">
+            @csrf
+            @method('patch')
+            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">Reject Loan Application?</h2>
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Please provide a reason for rejecting this application.</p>
+            <div class="mt-6">
+                <x-input-label for="details_reject" value="Reason" class="sr-only" />
+                <textarea id="details_reject" name="details" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" placeholder="Reason for rejection..."></textarea>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <x-secondary-button x-on:click="$dispatch('close')">{{ __('Cancel') }}</x-secondary-button>
+                <x-danger-button class="ms-3" name="status" value="rejected">{{ __('Reject Loan') }}</x-danger-button>
+            </div>
+        </form>
+    </x-modal>
+
+    <!-- Cancel Modal -->
+    <x-modal name="cancel-loan-modal" focusable>
+        <form method="post" action="{{ route('loans.admin.cancel', $loan) }}" class="p-6">
+            @csrf
+            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">Cancel Loan Application?</h2>
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Please provide a reason for cancelling this application.</p>
+            <div class="mt-6">
+                <x-input-label for="details_cancel" value="Reason" class="sr-only" />
+                <textarea id="details_cancel" name="details" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" placeholder="Reason for cancellation..." required></textarea>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <x-secondary-button x-on:click="$dispatch('close')">{{ __('Cancel') }}</x-secondary-button>
+                <x-secondary-button class="ms-3" type="submit">{{ __('Confirm Cancellation') }}</x-secondary-button>
+            </div>
+        </form>
+    </x-modal>
 </x-app-layout>

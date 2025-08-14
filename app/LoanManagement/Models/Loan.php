@@ -57,4 +57,9 @@ class Loan extends Model
     {
         return $this->hasMany(RepaymentSchedule::class)->orderBy('payment_number', 'asc');
     }
+
+    public function activities()
+    {
+        return $this->hasMany(LoanActivity::class)->latest();
+    }
 }

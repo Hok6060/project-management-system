@@ -16,6 +16,7 @@
                                     <th scope="col" class="px-6 py-3">Loan ID</th>
                                     <th scope="col" class="px-6 py-3">Customer</th>
                                     <th scope="col" class="px-6 py-3">Type</th>
+                                    <th scope="col" class="px-6 py-3">Payment Frequency</th>
                                     <th scope="col" class="px-6 py-3">Amount</th>
                                     <th scope="col" class="px-6 py-3">Status</th>
                                     <th scope="col" class="px-6 py-3">Applied On</th>
@@ -29,7 +30,8 @@
                                         {{ $loan->loan_identifier }}
                                     </th>
                                     <td class="px-6 py-4">{{ $loan->customer->full_name }}</td>
-                                    <td class="px-6 py-4">{{ $loan->LoanType->name }}</td>
+                                    <td class="px-6 py-4">{{ $loan->loanType->name }}</td>
+                                    <td class="px-6 py-4">{{ ucwords(str_replace('_', ' ', $loan->payment_frequency)) }}</td>
                                     <td class="px-6 py-4">${{ number_format($loan->principal_amount, 2) }}</td>
                                     <td class="px-6 py-4">
                                         @if($loan->status == 'active' || $loan->status == 'completed')
