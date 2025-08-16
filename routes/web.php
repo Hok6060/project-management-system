@@ -14,6 +14,7 @@ use App\ProjectManagement\Http\Controllers\AdminController;
 use App\LoanManagement\Http\Controllers\LoanTypeController;
 use App\LoanManagement\Http\Controllers\LoanController;
 use App\LoanManagement\Http\Controllers\CustomerController;
+use App\LoanManagement\Http\Controllers\SettingController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -88,6 +89,11 @@ Route::middleware(['auth', \App\ProjectManagement\Http\Middleware\IsAdmin::class
 
     // Customer Management Routes
     Route::resource('customers', CustomerController::class);
+
+    // System Settings Route
+    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+    Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
+    Route::post('/settings/run-eod', [SettingController::class, 'runEod'])->name('settings.runEod');
 });
 
 // --- Loan Management Routes (for Admins and Loan Officers) ---

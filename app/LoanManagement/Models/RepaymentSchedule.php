@@ -17,6 +17,7 @@ class RepaymentSchedule extends Model
         'principal_component',
         'interest_component',
         'remaining_balance',
+        'penalty_amount',
         'status',
         'paid_on',
     ];

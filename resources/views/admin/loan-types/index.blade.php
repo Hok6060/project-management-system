@@ -27,12 +27,12 @@
                         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3">Name</th>
-                                    <th scope="col" class="px-6 py-3">Interest Rate (%)</th>
-                                    <th scope="col" class="px-6 py-3">Term (Months)</th>
-                                    <th scope="col" class="px-6 py-3">Calculation Type</th>
-                                    <th scope="col" class="px-6 py-3">Status</th>
-                                    <th scope="col" class="px-6 py-3">Actions</th>
+                                    <th scope="col" class="px-6 py-3 whitespace-nowrap">Name</th>
+                                    <th scope="col" class="px-6 py-3 whitespace-nowrap">Interest Rate (%)</th>
+                                    <th scope="col" class="px-6 py-3 whitespace-nowrap">Term (Months)</th>
+                                    <th scope="col" class="px-6 py-3 whitespace-nowrap">Calculation Type</th>
+                                    <th scope="col" class="px-6 py-3 whitespace-nowrap">Status</th>
+                                    <th scope="col" class="px-6 py-3 whitespace-nowrap">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -43,7 +43,7 @@
                                     </th>
                                     <td class="px-6 py-4">{{ $type->min_interest_rate }} - {{ $type->max_interest_rate }}%</td>
                                     <td class="px-6 py-4">{{ $type->min_term }} - {{ $type->max_term }}</td>
-                                    <td class="px-6 py-4">{{ ucfirst(str_replace('_', ' ', $type->calculation_type)) }}</td>
+                                    <td class="px-6 py-4">{{ ucwords(str_replace('_', ' ', $type->calculation_type)) }}</td>
                                     <td class="px-6 py-4">
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                             {{ $type->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
@@ -56,7 +56,7 @@
                                 </tr>
                                 @empty
                                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                                    <td colspan="6" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                                    <td colspan="5" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                                         No loan types found.
                                     </td>
                                 </tr>

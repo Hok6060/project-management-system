@@ -70,6 +70,39 @@
                             </div>
                         </div>
 
+                        <!-- Penalty Settings -->
+                        <div class="mt-6 border-t border-gray-200 dark:border-gray-700 pt-6">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Penalty Settings</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                                <!-- Late Payment Penalty Type -->
+                                <div>
+                                    <x-input-label for="penalty_type" :value="__('Late Payment Penalty Type')" />
+                                    <select id="penalty_type" name="penalty_type" class="block mt-1 w-full ...">
+                                        <option value="flat_fee" @selected(old('penalty_type', $loanType->penalty_type) == 'flat_fee')>Flat Fee</option>
+                                        <option value="percentage" @selected(old('penalty_type', $loanType->penalty_type) == 'percentage')>Percentage of Overdue Amount</option>
+                                    </select>
+                                </div>
+                                <!-- Late Payment Penalty Amount -->
+                                <div>
+                                    <x-input-label for="penalty_amount" :value="__('Late Payment Penalty Amount ($ or %)')" />
+                                    <x-text-input id="penalty_amount" class="block mt-1 w-full" type="number" name="penalty_amount" :value="old('penalty_amount', $loanType->penalty_amount)" required step="0.01" />
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                                <!-- Prepayment Penalty Period -->
+                                <div>
+                                    <x-input-label for="prepayment_penalty_period" :value="__('Early Payoff Penalty Period (Months)')" />
+                                    <x-text-input id="prepayment_penalty_period" class="block mt-1 w-full" type="number" name="prepayment_penalty_period" :value="old('prepayment_penalty_period', $loanType->prepayment_penalty_period)" placeholder="e.g., 12" />
+                                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Leave blank for no penalty.</p>
+                                </div>
+                                <!-- Prepayment Penalty Amount -->
+                                <div>
+                                    <x-input-label for="prepayment_penalty_amount" :value="__('Early Payoff Penalty Amount ($)')" />
+                                    <x-text-input id="prepayment_penalty_amount" class="block mt-1 w-full" type="number" name="prepayment_penalty_amount" :value="old('prepayment_penalty_amount', $loanType->prepayment_penalty_amount)" step="0.01" />
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Is Active -->
                         <div class="block mt-4">
                             <label for="is_active" class="inline-flex items-center">

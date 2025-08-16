@@ -40,6 +40,10 @@ class LoanTypeController extends Controller
             'min_term' => ['required', 'integer', 'min:1'],
             'max_term' => ['required', 'integer', 'gte:min_term'],
             'is_active' => ['sometimes', 'boolean'],
+            'penalty_type' => ['required', Rule::in(['flat_fee', 'percentage'])],
+            'penalty_amount' => ['required', 'numeric', 'min:0'],
+            'prepayment_penalty_period' => ['nullable', 'integer', 'min:0'],
+            'prepayment_penalty_amount' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         $validatedData['is_active'] = $request->has('is_active');
@@ -71,6 +75,10 @@ class LoanTypeController extends Controller
             'min_term' => ['required', 'integer', 'min:1'],
             'max_term' => ['required', 'integer', 'gte:min_term'],
             'is_active' => ['sometimes', 'boolean'],
+            'penalty_type' => ['required', Rule::in(['flat_fee', 'percentage'])],
+            'penalty_amount' => ['required', 'numeric', 'min:0'],
+            'prepayment_penalty_period' => ['nullable', 'integer', 'min:0'],
+            'prepayment_penalty_amount' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         $validatedData['is_active'] = $request->has('is_active');

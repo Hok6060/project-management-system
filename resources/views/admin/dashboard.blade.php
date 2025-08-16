@@ -64,6 +64,9 @@
                         <a href="{{ route('admin.customers.index') }}" class="block font-semibold text-blue-600 dark:text-blue-400 hover:underline">
                             Go to Customer Management &rarr;
                         </a>
+                        <a href="{{ route('admin.settings.index') }}" class="block font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                            Go to System Settings &rarr;
+                        </a>
                     </div>
                 </div>
             </div>

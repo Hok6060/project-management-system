@@ -24,5 +24,9 @@ class DatabaseSeeder extends Seeder
             'notify_by_telegram' => false,
             'telegram_chat_id' => '711877587'
         ]);
+
+        $this->call([
+            SettingSeeder::class,
+        ]);
     }
 }

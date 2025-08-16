@@ -18,5 +18,10 @@ class LoanType extends Model
         'min_term',
         'max_term',
         'is_active',
+        'penalty_type',
+        'penalty_amount',
+        'prepayment_penalty_period',
+        'prepayment_penalty_amount',
+        'grace_days',
     ];
 }
