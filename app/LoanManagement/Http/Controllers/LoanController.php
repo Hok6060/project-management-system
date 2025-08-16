@@ -77,14 +77,13 @@ class LoanController extends Controller
      */
     public function update(Request $request, Loan $loan, LoanCalculationService $loanCalculator)
     {
-        // Prevent action if the loan is not pending
         if ($loan->status !== 'pending') {
             return back()->with('error', 'This loan has already been processed.');
         }
 
         $validatedData = $request->validate([
             'status' => ['required', Rule::in(['approved', 'rejected'])],
-            'details' => ['nullable', 'string', 'max:1000'], // For the comment
+            'details' => ['nullable', 'string', 'max:1000'],
         ]);
 
         if (!$loan->loan_officer_id) {
@@ -100,7 +99,6 @@ class LoanController extends Controller
 
         $loan->save();
 
-        // Create an activity log entry
         $loan->activities()->create([
             'user_id' => Auth::id(),
             'description' => "{$validatedData['status']} the loan application",
@@ -175,13 +173,12 @@ class LoanController extends Controller
         }
 
         $validatedData = $request->validate([
-            'details' => ['required', 'string', 'max:1000'], // Make comment required for cancellation
+            'details' => ['required', 'string', 'max:1000'],
         ]);
 
         $loan->status = 'cancelled';
         $loan->save();
 
-        // Create an activity log entry
         $loan->activities()->create([
             'user_id' => Auth::id(),
             'description' => 'cancelled the loan application',

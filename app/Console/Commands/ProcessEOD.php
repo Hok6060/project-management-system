@@ -41,7 +41,7 @@ class ProcessEOD extends Command
         $this->info("Processing EOD for {$runDate->toDateString()} -> {$nextDate->toDateString()}");
 
         $latePayments = RepaymentSchedule::with('loan.loanType')
-            ->where('status', 'pending')
+            ->whereIn('status', ['pending', 'late'])
             ->where('payment_amount', '>', 0)
             ->whereDate('due_date', '<', $nextDate)
             ->get();
@@ -49,29 +49,73 @@ class ProcessEOD extends Command
         if ($latePayments->isEmpty()) {
             $this->info('No late payments found.');
         } else {
-            $this->info("Found {$latePayments->count()} late payment(s) to process.");
+            $this->info("Found {$latePayments->count()} payment(s) to process for penalties.");
+
             foreach ($latePayments as $payment) {
                 $loanType = $payment->loan->loanType;
-                $penalty = '0.00';
+                $graceDays = $loanType->grace_days ?? 0;
 
-                if ($loanType->penalty_type === 'flat_fee') {
-                    $penalty = $loanType->penalty_amount;
-                } elseif ($loanType->penalty_type === 'percentage') {
-                    $penalty = bcmul($payment->payment_amount, bcdiv($loanType->penalty_amount, '100', 8), 2);
+                $dueDate = Carbon::parse($payment->due_date);
+                $graceEndDate = $dueDate->copy()->addDays($graceDays);
+
+                if ($payment->status === 'paid') {
+                    continue;
                 }
 
+                $lastPenaltyDate = $payment->last_penalty_date
+                    ? Carbon::parse($payment->last_penalty_date)
+                    : null;
+
+                if ($nextDate->greaterThan($graceEndDate)) {
+                    $penaltyStartDate = $lastPenaltyDate ?? $dueDate;
+                } else {
+                    continue;
+                }
+
+                $newDays = $penaltyStartDate->diffInDays($nextDate);
+                if ($newDays <= 0) {
+                    continue;
+                }
+
+                $dailyPenalty = '0.00';
+                if ($loanType->penalty_type === 'flat_fee') {
+                    $dailyPenalty = $loanType->penalty_amount;
+                } elseif ($loanType->penalty_type === 'percentage') {
+                    $dailyPenalty = bcmul(
+                        $payment->payment_amount,
+                        bcdiv($loanType->penalty_amount, '100', 8),
+                        2
+                    );
+                }
+
+                $penaltyToApply = bcmul($dailyPenalty, $newDays, 2);
+
                 $payment->status = 'late';
-                $payment->penalty_amount = bcadd($payment->penalty_amount ?? '0.00', $penalty, 2);
+                $payment->penalty_amount = bcadd($payment->penalty_amount ?? '0.00', $penaltyToApply, 2);
+                $payment->last_penalty_date = $nextDate;
                 $payment->save();
 
-                $this->line(sprintf(
-                    'Applied a penalty of $%s to payment #%s for loan %s (due %s).',
-                    $penalty,
-                    $payment->payment_number,
-                    $payment->loan->loan_identifier,
-                    Carbon::parse($payment->due_date)->toDateString()
-                ));
+                if ($newDays > 0) {
+                    $this->line(sprintf(
+                        'Applied $%s penalty (%s days @ $%s/day) to payment #%s for loan %s (due %s, grace %d).',
+                        $penaltyToApply,
+                        $newDays,
+                        $dailyPenalty,
+                        $payment->payment_number,
+                        $payment->loan->loan_identifier,
+                        $dueDate->toDateString(),
+                        $graceDays
+                    ));
+                } else {
+                    $this->line(sprintf(
+                        'Skipped penalty for payment #%s of loan %s (due %s) — still in grace period.',
+                        $payment->payment_number,
+                        $payment->loan->loan_identifier,
+                        $dueDate->toDateString()
+                    ));
+                }
             }
+
             $this->info('Successfully processed all late payments.');
         }
 

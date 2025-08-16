@@ -54,7 +54,7 @@
                         </div>
                         <div>
                             <h4 class="font-semibold">Free Interest Period</h4>
-                            <p class="text-gray-600 dark:text-gray-400">{{ $loan->interest_free_periods }} months</p>
+                            <p class="text-gray-600 dark:text-gray-400">{{ $loan->interest_free_periods ? $loan->interest_free_periods . " months" : 'N/A' }}</p>
                         </div>
                         <div>
                             <h4 class="font-semibold">First Payment Date</h4>

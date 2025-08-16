@@ -11,6 +11,8 @@
                         <th scope="col" class="px-6 py-3">Principal</th>
                         <th scope="col" class="px-6 py-3">Interest</th>
                         <th scope="col" class="px-6 py-3">Remaining Balance</th>
+                        <th scope="col" class="px-6 py-3">Penalty</th>
+                        <th scope="col" class="px-6 py-3"># of Due</th>
                         <th scope="col" class="px-6 py-3">Status</th>
                     </tr>
                 </thead>
@@ -19,10 +21,12 @@
                     <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                         <td class="px-6 py-4">{{ $schedule->payment_number }}</td>
                         <td class="px-6 py-4">{{ \Carbon\Carbon::parse($schedule->due_date)->format('M d, Y') }}</td>
-                        <td class="px-6 py-4">${{ number_format($schedule->payment_amount, 2) }}</td>
-                        <td class="px-6 py-4">${{ number_format($schedule->principal_component, 2) }}</td>
-                        <td class="px-6 py-4">${{ number_format($schedule->interest_component, 2) }}</td>
-                        <td class="px-6 py-4">${{ number_format($schedule->remaining_balance, 2) }}</td>
+                        <td class="px-6 py-4">$ {{ number_format($schedule->payment_amount, 2) }}</td>
+                        <td class="px-6 py-4">$ {{ number_format($schedule->principal_component, 2) }}</td>
+                        <td class="px-6 py-4">$ {{ number_format($schedule->interest_component, 2) }}</td>
+                        <td class="px-6 py-4">$ {{ number_format($schedule->remaining_balance, 2) }}</td>
+                        <td class="px-6 py-4">$ {{ number_format($schedule->penalty_amount, 2) }}</td>
+                        <td class="px-6 py-4">{{ $schedule->last_penalty_date ? \Carbon\Carbon::parse($schedule->due_date)->diffInDays(\Carbon\Carbon::parse($schedule->last_penalty_date)) : 0 }} days</td>
                         <td class="px-6 py-4">
                             @if($schedule->status == 'paid')
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">

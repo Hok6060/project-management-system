@@ -103,6 +103,14 @@
                             </div>
                         </div>
 
+                        <!-- Late Payment Grace Period -->
+                        <div class="mt-4">
+                            <x-input-label for="grace_days" :value="__('Late Payment Grace Period (Days)')" />
+                            <x-text-input id="grace_days" class="block mt-1 w-full" type="number" name="grace_days" :value="old('grace_days', $loanType->grace_days)" required />
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">No penalty will be applied during this period after the due date.</p>
+                            <x-input-error :messages="$errors->get('grace_days')" class="mt-2" />
+                        </div>
+
                         <!-- Is Active -->
                         <div class="block mt-4">
                             <label for="is_active" class="inline-flex items-center">

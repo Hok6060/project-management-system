@@ -20,6 +20,7 @@ class RepaymentSchedule extends Model
         'penalty_amount',
         'status',
         'paid_on',
+        'last_penalty_date',
     ];
 
     /**

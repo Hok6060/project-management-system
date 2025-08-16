@@ -44,6 +44,7 @@ class LoanTypeController extends Controller
             'penalty_amount' => ['required', 'numeric', 'min:0'],
             'prepayment_penalty_period' => ['nullable', 'integer', 'min:0'],
             'prepayment_penalty_amount' => ['nullable', 'numeric', 'min:0'],
+            'grace_days' => ['required', 'integer', 'min:0'],
         ]);
 
         $validatedData['is_active'] = $request->has('is_active');
@@ -79,6 +80,7 @@ class LoanTypeController extends Controller
             'penalty_amount' => ['required', 'numeric', 'min:0'],
             'prepayment_penalty_period' => ['nullable', 'integer', 'min:0'],
             'prepayment_penalty_amount' => ['nullable', 'numeric', 'min:0'],
+            'grace_days' => ['required', 'integer', 'min:0'],
         ]);
 
         $validatedData['is_active'] = $request->has('is_active');

@@ -49,7 +49,7 @@
             </div>
 
             <!-- EOD Actions -->
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="mt-4 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Manual EOD Actions</h3>
                     <div class="flex items-center space-x-4">
