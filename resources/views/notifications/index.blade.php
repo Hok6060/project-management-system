@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
             <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
                 {{ __('All Notifications') }}
             </h2>
@@ -8,13 +8,13 @@
                 <form action="{{ route('notifications.markAllAsRead') }}" method="POST">
                     @csrf
                     <x-primary-button>
-                        {{ __('Mark All as Read') }}
+                    {{ __('Mark All as Read') }}
                     </x-primary-button>
                 </form>
                 <form action="{{ route('notifications.clearRead') }}" method="POST">
                     @csrf
                     <x-secondary-button type="submit" onclick="return confirm('Are you sure you want to clear all read notifications?')">
-                        {{ __('Clear All Read') }}
+                    {{ __('Clear All Read') }}
                     </x-secondary-button>
                 </form>
             </div>

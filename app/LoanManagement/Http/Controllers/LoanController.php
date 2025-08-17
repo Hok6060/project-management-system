@@ -17,13 +17,32 @@ class LoanController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $loans = Loan::with(['customer', 'loanType'])
-                    ->latest('loan_identifier')
-                    ->paginate(10);
+        $query = Loan::with(['customer', 'loanType']);
 
-        return view('loan-management.admin.index', compact('loans'));
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('q')) {
+            $searchTerm = $request->q;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('loan_identifier', 'like', "%{$searchTerm}%")
+                  ->orWhereHas('customer', function($customerQuery) use ($searchTerm) {
+                      $customerQuery->where('first_name', 'like', "%{$searchTerm}%")
+                                    ->orWhere('last_name', 'like', "%{$searchTerm}%");
+                  });
+            });
+        }
+
+        $loans = $query->latest('application_date')->paginate(10);
+
+        return view('loan-management.admin.index', [
+            'loans' => $loans,
+            'statuses' => ['pending', 'approved', 'active', 'rejected', 'completed', 'defaulted', 'cancelled'],
+            'request' => $request
+        ]);
     }
 
     /**

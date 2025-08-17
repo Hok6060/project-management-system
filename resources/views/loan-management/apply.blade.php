@@ -16,7 +16,7 @@
                         <div>
                             <x-input-label for="loan_type_id" :value="__('Select Loan Type')" />
                             <select id="loan_type_id" name="loan_type_id" class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
-                                <option value="">-- Please choose a loan type --</option>
+                                <option value="">-- Choose a loan type --</option>
                                 @foreach ($loanTypes as $type)
                                     <option 
                                         value="{{ $type->id }}" 
@@ -37,7 +37,7 @@
                         <div class="mt-4">
                             <x-input-label for="customer_id" :value="__('Select Customer')" />
                             <select id="customer_id" name="customer_id" class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
-                                <option value="">-- Please choose a customer --</option>
+                                <option value="">-- Choose a customer --</option>
                                 @foreach ($customers as $customer)
                                     <option value="{{ $customer->id }}" {{ old('customer_id') == $customer->id ? 'selected' : '' }}>
                                         {{ $customer->full_name }} ({{ $customer->customer_identifier }})

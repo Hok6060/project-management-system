@@ -40,6 +40,25 @@ class ProcessEOD extends Command
         $nextDate = $runDate->copy()->addDay()->startOfDay();
         $this->info("Processing EOD for {$runDate->toDateString()} -> {$nextDate->toDateString()}");
 
+        $zeroPayments = RepaymentSchedule::with('loan')
+            ->where('status', 'pending')
+            ->where('payment_amount', '=', 0)
+            ->whereDate('due_date', '<', $nextDate)
+            ->get();
+
+        foreach ($zeroPayments as $payment) {
+            $payment->status = 'paid';
+            $payment->paid_on = $payment->due_date;
+            $payment->save();
+
+            $this->line(sprintf(
+                'Auto-paid $0 installment: payment #%s for loan %s (due %s).',
+                $payment->payment_number,
+                $payment->loan->loan_identifier,
+                Carbon::parse($payment->due_date)->toDateString()
+            ));
+        }
+
         $latePayments = RepaymentSchedule::with('loan.loanType')
             ->whereIn('status', ['pending', 'late'])
             ->where('payment_amount', '>', 0)
@@ -95,25 +114,16 @@ class ProcessEOD extends Command
                 $payment->last_penalty_date = $nextDate;
                 $payment->save();
 
-                if ($newDays > 0) {
-                    $this->line(sprintf(
-                        'Applied $%s penalty (%s days @ $%s/day) to payment #%s for loan %s (due %s, grace %d).',
-                        $penaltyToApply,
-                        $newDays,
-                        $dailyPenalty,
-                        $payment->payment_number,
-                        $payment->loan->loan_identifier,
-                        $dueDate->toDateString(),
-                        $graceDays
-                    ));
-                } else {
-                    $this->line(sprintf(
-                        'Skipped penalty for payment #%s of loan %s (due %s) — still in grace period.',
-                        $payment->payment_number,
-                        $payment->loan->loan_identifier,
-                        $dueDate->toDateString()
-                    ));
-                }
+                $this->line(sprintf(
+                    'Applied $%s penalty (%s days @ $%s/day) to payment #%s for loan %s (due %s, grace %d).',
+                    $penaltyToApply,
+                    $newDays,
+                    $dailyPenalty,
+                    $payment->payment_number,
+                    $payment->loan->loan_identifier,
+                    $dueDate->toDateString(),
+                    $graceDays
+                ));
             }
 
             $this->info('Successfully processed all late payments.');

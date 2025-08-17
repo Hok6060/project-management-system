@@ -54,7 +54,7 @@
                 </div>
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                     <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mt-6 mb-4 px-6">Menu</h3>
-                    <div class="px-6">
+                    <div class="px-6 mb-6">
                         <a href="{{ route('admin.users.index') }}" class="font-semibold text-blue-600 dark:text-blue-400 hover:underline">
                             Go to User Management &rarr;
                         </a>
