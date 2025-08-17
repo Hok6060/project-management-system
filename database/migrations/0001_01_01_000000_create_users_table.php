@@ -17,8 +17,18 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->enum('role', ['admin', 'project_manager', 'team_member', 'client'])->default('team_member');
+            $table->enum('role', [
+                'admin',
+                'project_manager',
+                'team_member',
+                'client',
+                'loan_officer'
+            ])->default('team_member');
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->rememberToken();
+            $table->string('telegram_chat_id')->nullable();
+            $table->boolean('notify_by_email')->default(true);
+            $table->boolean('notify_by_telegram')->default(true);
             $table->timestamps();
         });
 

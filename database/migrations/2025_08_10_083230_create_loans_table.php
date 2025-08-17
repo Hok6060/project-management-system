@@ -13,29 +13,27 @@ return new class extends Migration
     {
         Schema::create('loans', function (Blueprint $table) {
             $table->id();
-            $table->string('loan_identifier')->unique(); // A unique ID like "L0001"
-
+            $table->string('loan_identifier')->unique();
             $table->foreignId('loan_type_id')->constrained('loan_types');
-            $table->foreignId('borrower_id')->constrained('users');
+            $table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
             $table->foreignId('loan_officer_id')->nullable()->constrained('users');
-
             $table->decimal('principal_amount', 15, 2);
             $table->decimal('interest_rate', 5, 2);
-            $table->integer('term'); // Loan term in months
-
+            $table->integer('term');
+            $table->enum('payment_frequency', ['monthly', 'quarterly', 'semi_annually'])->default('monthly');
+            $table->integer('interest_free_periods')->default(0);
             $table->enum('status', [
                 'pending',
                 'approved',
                 'active',
                 'rejected',
                 'completed',
-                'defaulted'
+                'defaulted',
+                'cancelled'
             ])->default('pending');
-
             $table->date('application_date');
             $table->date('approval_date')->nullable();
             $table->date('first_payment_date')->nullable();
-
             $table->timestamps();
         });
     }
