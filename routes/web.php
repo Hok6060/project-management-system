@@ -16,11 +16,7 @@ use App\LoanManagement\Http\Controllers\LoanController;
 use App\LoanManagement\Http\Controllers\CustomerController;
 use App\LoanManagement\Http\Controllers\SettingController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Route::get('/dashboard', [DashboardController::class, 'index'])
+Route::get('/', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware(['auth', 'verified'])->group(function () {
