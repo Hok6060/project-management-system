@@ -62,4 +62,9 @@ class Loan extends Model
     {
         return $this->hasMany(LoanActivity::class)->latest();
     }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class)->latest();
+    }
 }

@@ -21,7 +21,15 @@ return new class extends Migration
             $table->decimal('interest_component', 15, 2);
             $table->decimal('remaining_balance', 15, 2);
             $table->decimal('penalty_amount', 15, 2)->default(0);
-            $table->enum('status', ['pending', 'paid', 'late'])->default('pending');
+            $table->decimal('paid_amount', 15, 2)->default(0);
+            $table->enum('status', [
+                'pending',
+                'due',
+                'late',
+                'paid',
+                'paid_late',
+                'partially_paid'
+            ])->default('pending');
             $table->date('paid_on')->nullable();
             $table->date('last_penalty_date')->nullable();
             $table->timestamps();

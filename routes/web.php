@@ -15,6 +15,7 @@ use App\LoanManagement\Http\Controllers\LoanTypeController;
 use App\LoanManagement\Http\Controllers\LoanController;
 use App\LoanManagement\Http\Controllers\CustomerController;
 use App\LoanManagement\Http\Controllers\SettingController;
+use App\LoanManagement\Http\Controllers\TransactionController;
 
 Route::get('/', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])->name('dashboard');
@@ -100,6 +101,7 @@ Route::middleware(['auth', \App\LoanManagement\Http\Middleware\CanManageLoans::c
     Route::patch('/loans/{loan}', [LoanController::class, 'update'])->name('update');
     Route::patch('/loans/{loan}/assign', [LoanController::class, 'assignOfficer'])->name('assign');
     Route::post('/loans/{loan}/cancel', [LoanController::class, 'cancel'])->name('cancel');
+    Route::post('/repayment/{schedule}/pay', [TransactionController::class, 'store'])->name('repayment.pay');
 });
 
 require __DIR__.'/auth.php';

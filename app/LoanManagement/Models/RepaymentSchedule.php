@@ -18,6 +18,7 @@ class RepaymentSchedule extends Model
         'interest_component',
         'remaining_balance',
         'penalty_amount',
+        'paid_amount',
         'status',
         'paid_on',
         'last_penalty_date',
@@ -29,5 +30,10 @@ class RepaymentSchedule extends Model
     public function loan()
     {
         return $this->belongsTo(Loan::class);
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
     }
 }

@@ -125,6 +125,36 @@
             <!-- Repayment Schedule -->
             @include('loan-management.admin._repayment-schedule', ['loan' => $loan, 'schedules' => $schedules])
             
+            <!-- Transaction History Card -->
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900 dark:text-gray-100">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Transaction History</h3>
+                    <div class="space-y-4">
+                        @forelse ($loan->transactions as $transaction)
+                            <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                <div class="flex items-center justify-between">
+                                    <p class="font-semibold text-gray-900 dark:text-white">
+                                        ${{ number_format($transaction->amount_paid, 2) }} paid via {{ $transaction->payment_method }}
+                                    </p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                        {{ \Carbon\Carbon::parse($transaction->payment_date)->format('M d, Y') }}
+                                    </p>
+                                </div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    Recorded by {{ $transaction->user->name }}
+                                </p>
+                                @if($transaction->notes)
+                                    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400 border-l-2 border-gray-300 dark:border-gray-600 pl-2 italic">
+                                        "{{ $transaction->notes }}"
+                                    </p>
+                                @endif
+                            </div>
+                        @empty
+                            <p class="text-gray-500 dark:text-gray-400">No transactions have been recorded for this loan yet.</p>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
