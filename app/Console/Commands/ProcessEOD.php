@@ -91,7 +91,7 @@ class ProcessEOD extends Command
             if (bccomp($outPrincipal, '0.00', 2) < 0) $outPrincipal = '0.00';
 
             $remainingDue = bcadd(bcadd($outPenalty, $outInterest, 2), $outPrincipal, 2);
-            if (bccomp($remainingDue, '0.00', 2) <= 0) continue; // nothing left to pay
+            if (bccomp($remainingDue, '0.00', 2) <= 0) continue;
 
             $hasCredit = bccomp($loan->credit_balance ?? '0.00', '0.00', 2) > 0;
             $isDueOrOverdue = $runDate->gte($dueDate);
