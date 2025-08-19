@@ -30,15 +30,15 @@
                         <td class="px-6 py-4">
                             @if($schedule->status == 'paid')
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                    {{ ucfirst($schedule->status) }}
+                                    {{ ucwords(str_replace('_', ' ', $schedule->status)) }}
                                 </span>
                             @elseif($schedule->status == 'pending')
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                    {{ ucfirst($schedule->status) }}
+                                    {{ ucwords(str_replace('_', ' ', $schedule->status)) }}
                                 </span>
                             @else
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                    {{ ucfirst($schedule->status) }}
+                                    {{ ucwords(str_replace('_', ' ', $schedule->status)) }}
                                 </span>
                             @endif
                         </td>
