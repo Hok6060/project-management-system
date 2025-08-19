@@ -31,6 +31,7 @@ return new class extends Migration
                 'defaulted',
                 'cancelled'
             ])->default('pending');
+            $table->decimal('credit_balance', 15, 2)->default(0.00);
             $table->date('application_date');
             $table->date('approval_date')->nullable();
             $table->date('first_payment_date')->nullable();

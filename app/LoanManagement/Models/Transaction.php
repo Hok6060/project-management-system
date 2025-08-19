@@ -2,7 +2,6 @@
 
 namespace App\LoanManagement\Models;
 
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -12,9 +11,10 @@ class Transaction extends Model
 
     protected $fillable = [
         'loan_id',
-        'repayment_schedule_id',
-        'user_id',
         'amount_paid',
+        'penalty_paid',
+        'interest_paid',
+        'principal_paid',
         'payment_date',
         'payment_method',
         'notes',
@@ -28,10 +28,5 @@ class Transaction extends Model
     public function repaymentSchedule()
     {
         return $this->belongsTo(RepaymentSchedule::class);
-    }
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
     }
 }

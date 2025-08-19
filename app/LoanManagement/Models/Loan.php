@@ -21,6 +21,7 @@ class Loan extends Model
         'payment_frequency',
         'interest_free_periods',
         'status',
+        'credit_balance',
         'application_date',
         'approval_date',
         'first_payment_date',

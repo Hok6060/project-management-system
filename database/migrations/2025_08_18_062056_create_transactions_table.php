@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('loan_id')->constrained('loans')->onDelete('cascade');
-            $table->foreignId('repayment_schedule_id')->constrained('repayment_schedules')->onDelete('cascade');
-            $table->foreignId('user_id')->comment('The loan officer who recorded the payment')->constrained('users');
             $table->decimal('amount_paid', 15, 2);
+            $table->decimal('penalty_paid', 12, 2)->default(0);
+            $table->decimal('interest_paid', 12, 2)->default(0);
+            $table->decimal('principal_paid', 12, 2)->default(0);
             $table->date('payment_date');
             $table->string('payment_method')->nullable();
             $table->text('notes')->nullable();

@@ -21,7 +21,10 @@ return new class extends Migration
             $table->decimal('interest_component', 15, 2);
             $table->decimal('remaining_balance', 15, 2);
             $table->decimal('penalty_amount', 15, 2)->default(0);
-            $table->decimal('paid_amount', 15, 2)->default(0);
+            $table->decimal('amount_paid', 15, 2)->default(0);
+            $table->decimal('penalty_paid', 12, 2)->default(0);
+            $table->decimal('interest_paid', 12, 2)->default(0);
+            $table->decimal('principal_paid', 12, 2)->default(0);
             $table->enum('status', [
                 'pending',
                 'due',

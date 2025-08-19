@@ -51,7 +51,7 @@ class LoanController extends Controller
     public function show(Loan $loan)
     {
         // Eager load all the relationships we need
-        $loan->load(['customer', 'loanType', 'loanOfficer', 'repaymentSchedules', 'activities.user', 'transactions.user']); // <-- Add 'transactions.user'
+        $loan->load(['customer', 'loanType', 'loanOfficer', 'repaymentSchedules', 'activities.user']);
 
         // Paginate the repayment schedules separately
         $schedules = $loan->repaymentSchedules()->paginate(12);

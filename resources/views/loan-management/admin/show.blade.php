@@ -5,6 +5,9 @@
                 {{ __('Loan Application') }}: {{ $loan->loan_identifier }}
             </h2>
             <div class="flex items-center space-x-4">
+                <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'record-customer-payment-modal')">
+                    Record Payment
+                </x-primary-button>
                 @if ($loan->status === 'pending')
                     <a href="{{ route('loans.admin.edit', $loan) }}" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded text-sm">
                         Edit Application
@@ -133,21 +136,21 @@
                         @forelse ($loan->transactions as $transaction)
                             <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                                 <div class="flex items-center justify-between">
-                                    <p class="font-semibold text-gray-900 dark:text-white">
-                                        ${{ number_format($transaction->amount_paid, 2) }} paid via {{ $transaction->payment_method }}
+                                    @php
+                                        $method = strtolower($transaction->payment_method);
+                                        $isGreen = in_array($method, ['cash', 'bank_transfer']);
+                                        $colorClass = $isGreen ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
+                                    @endphp
+                                    <p class="font-semibold {{ $colorClass }}">
+                                        ${{ number_format($transaction->amount_paid, 2) }} paid via {{ ucwords(str_replace('_', ' ', $transaction->payment_method)) }}
                                     </p>
                                     <p class="text-xs text-gray-500 dark:text-gray-400">
                                         {{ \Carbon\Carbon::parse($transaction->payment_date)->format('M d, Y') }}
                                     </p>
                                 </div>
-                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                    Recorded by {{ $transaction->user->name }}
+                                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400 border-l-2 border-gray-300 dark:border-gray-600 pl-2 italic">
+                                    "{{ $transaction->notes ?? 'N/A' }}"
                                 </p>
-                                @if($transaction->notes)
-                                    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400 border-l-2 border-gray-300 dark:border-gray-600 pl-2 italic">
-                                        "{{ $transaction->notes }}"
-                                    </p>
-                                @endif
                             </div>
                         @empty
                             <p class="text-gray-500 dark:text-gray-400">No transactions have been recorded for this loan yet.</p>
@@ -211,3 +214,40 @@
         </form>
     </x-modal>
 </x-app-layout>
+
+<!-- Record Customer Payment Modal -->
+<x-modal name="record-customer-payment-modal" focusable>
+    <form method="post" action="{{ route('loans.admin.payment.store', $loan) }}" class="p-6">
+        @csrf
+        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">Record Payment for {{ $loan->customer->full_name }}</h2>
+        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Record a new payment for loan {{ $loan->loan_identifier }}. The system will automatically allocate the funds to the oldest outstanding installments.</p>
+
+        <div class="mt-6">
+            <x-input-label for="amount_paid" value="Amount Paid" />
+            <x-text-input id="amount_paid" name="amount_paid" type="number" class="mt-1 block w-full" step="0.01" required />
+        </div>
+
+        <div class="mt-4">
+            <x-input-label for="payment_date" value="Payment Date" />
+            <x-text-input id="payment_date" name="payment_date" type="date" class="mt-1 block w-full" value="{{ now()->format('Y-m-d') }}" required />
+        </div>
+
+        <div class="mt-4">
+            <x-input-label for="payment_method" value="Payment Method" />
+            <select id="payment_method" name="payment_method" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm">
+                <option value="bank_transfer">Bank Transfer</option>
+                <option value="cash">Cash</option>
+            </select>
+        </div>
+
+        <div class="mt-4">
+            <x-input-label for="notes" value="Notes (Optional)" />
+            <textarea id="notes" name="notes" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm"></textarea>
+        </div>
+
+        <div class="mt-6 flex justify-end">
+            <x-secondary-button x-on:click="$dispatch('close')">{{ __('Cancel') }}</x-secondary-button>
+            <x-primary-button class="ms-3">{{ __('Record Payment') }}</x-primary-button>
+        </div>
+    </form>
+</x-modal>
