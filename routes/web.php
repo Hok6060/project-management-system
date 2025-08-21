@@ -91,6 +91,7 @@ Route::middleware(['auth', \App\ProjectManagement\Http\Middleware\IsAdmin::class
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
     Route::post('/settings/run-eod', [SettingController::class, 'runEod'])->name('settings.runEod');
+    Route::get('/settings/eod-progress', [SettingController::class, 'eodProgress'])->name('settings.eodProgress');
 });
 
 // --- Loan Management Routes (for Admins and Loan Officers) ---

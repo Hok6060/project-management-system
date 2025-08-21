@@ -4,10 +4,12 @@ namespace App\LoanManagement\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\LoanManagement\Models\Setting;
+use App\LoanManagement\Jobs\ProcessEodJob;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Artisan;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\File;
 
 class SettingController extends Controller
 {
@@ -44,9 +46,24 @@ class SettingController extends Controller
      */
     public function runEod()
     {
-        Artisan::call('app:process-eod');
-        $output = Artisan::output();
+        ProcessEodJob::dispatch();
 
-        return back()->with('success', 'End-of-Day process has been run.')->with('eod_output', $output);
+        return redirect()->route('admin.settings.eodProgress')->with('success', 'The End-of-Day process has been started in the background.');
+    }
+
+    /**
+     * Display the EOD progress page.
+     */
+    public function eodProgress()
+    {
+        $logPath = storage_path('logs/laravel.log');
+        $logContent = '';
+
+        if (File::exists($logPath)) {
+            $lines = file($logPath);
+            $logContent = implode('', array_slice($lines, -50));
+        }
+
+        return view('loan-management.admin.settings.eod-progress', compact('logContent'));
     }
 }
