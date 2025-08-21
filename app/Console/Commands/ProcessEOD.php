@@ -54,7 +54,7 @@ class ProcessEOD extends Command
                 'Auto-paid $0 installment: payment #%s for loan %s (due %s).',
                 $payment->payment_number,
                 $payment->loan->loan_identifier,
-                $payment->due_date->toDateString()
+                Carbon::parse($payment->due_date)->toDateString()
             ));
         }
     }
@@ -63,8 +63,7 @@ class ProcessEOD extends Command
     {
         $pendingPayments = RepaymentSchedule::with('loan')
             ->whereIn('status', ['pending', 'due', 'late', 'partially_paid'])
-            ->where('payment_amount', '>', 0)
-            ->orderBy('due_date')
+            ->orderBy('payment_number')
             ->get();
 
         $transactionsToday = Transaction::whereDate('payment_date', $runDate->toDateString())
@@ -80,6 +79,14 @@ class ProcessEOD extends Command
             if (isset($processedLoanIds[$loan->id])) continue;
 
             $dueDate = Carbon::parse($payment->due_date);
+
+            $hasZeroBefore = RepaymentSchedule::where('loan_id', $loan->id)
+                ->where('status', 'pending')
+                ->where('payment_number', '<', $payment->payment_number)
+                ->where('payment_amount', '=', 0)
+                ->exists();
+
+            if ($hasZeroBefore) continue;
 
             $outPenalty   = bcsub($payment->penalty_amount   ?? '0.00', $payment->penalty_paid   ?? '0.00', 2);
             if (bccomp($outPenalty, '0.00', 2) < 0) $outPenalty = '0.00';

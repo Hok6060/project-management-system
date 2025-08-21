@@ -67,6 +67,10 @@
                             <h4 class="font-semibold">Last Payment Date</h4>
                             <p class="text-gray-600 dark:text-gray-400">{{ \Carbon\Carbon::parse($loan->first_payment_date)->addMonths($loan->term - 1)->format('M d, Y') }}</p>
                         </div>
+                        <div>
+                            <h4 class="font-semibold">Credit Balance Amount</h4>
+                            <p class="text-gray-600 dark:text-gray-400">$ {{ number_format($loan->credit_balance, 2) }}</p>
+                        </div>
                     </div>
                 </div>
             </div>

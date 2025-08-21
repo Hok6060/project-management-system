@@ -36,7 +36,7 @@ class LoanController extends Controller
             });
         }
 
-        $loans = $query->latest('application_date')->paginate(10);
+        $loans = $query->latest('id')->paginate(10);
 
         return view('loan-management.admin.index', [
             'loans' => $loans,
