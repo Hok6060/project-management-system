@@ -10,41 +10,79 @@ use Illuminate\Queue\SerializesModels;
 use App\LoanManagement\Models\Setting;
 use App\LoanManagement\Models\RepaymentSchedule;
 use App\LoanManagement\Models\Transaction;
+use App\LoanManagement\Models\JobStatus;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use throwable;
 
 class ProcessEodJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    protected $jobStatus;
+
+    public function __construct(JobStatus $jobStatus)
+    {
+        $this->jobStatus = $jobStatus;
+    }
+
     public function handle(): void
     {
-        Log::info('Starting background EOD process...');
+        $this->jobStatus->job_id = $this->job->getJobId();
+        $this->jobStatus->save();
+        
+        try {
+            $this->updateStatus('running', 0, ['Initializing...']);
 
-        $settings = Setting::first();
-        if (!$settings) {
-            Log::error('System settings not found. Aborting EOD process.');
-            return;
+            $settings = Setting::first();
+            if (!$settings) {
+                throw new \Exception('System settings not found.');
+            }
+
+            $runDate  = Carbon::parse($settings->system_date)->startOfDay();
+            $nextDate = $runDate->copy()->addDay()->startOfDay();
+            
+            $steps = [
+                'Auto-paying zero installments' => fn() => $this->autoPayZeroInstallments($nextDate),
+                'Applying customer credit' => fn() => $this->applyCreditBalance($runDate, $nextDate),
+                'Processing late penalties' => fn() => $this->processPenalties($nextDate),
+                'Advancing system date' => fn() => $this->advanceSystemDate($settings, $nextDate),
+            ];
+
+            $completedSteps = 0;
+            $totalSteps = count($steps);
+            $allLogs = [];
+
+            foreach ($steps as $name => $closure) {
+                $stepLogs = $closure();
+                $allLogs = array_merge($allLogs, ["--- {$name} ---"], $stepLogs);
+                $completedSteps++;
+                $progress = (int)(($completedSteps / $totalSteps) * 100);
+                $this->updateStatus('running', $progress, $allLogs);
+            }
+
+            $this->updateStatus('completed', 100, $allLogs, 'EOD process completed successfully.');
+
+        } catch (Throwable $e) {
+            $this->updateStatus('failed', $this->jobStatus->progress, $this->jobStatus->details['logs'] ?? [], "EOD Failed: " . $e->getMessage());
         }
+    }
 
-        $runDate = Carbon::parse($settings->system_date)->startOfDay();
-        $nextDate = $runDate->copy()->addDay()->startOfDay();
-        Log::info("Processing EOD for {$runDate->toDateString()} -> {$nextDate->toDateString()}");
-
-        DB::transaction(function () use ($runDate, $nextDate, $settings) {
-            $this->autoPayZeroInstallments($nextDate);
-            $this->applyCreditBalance($runDate, $nextDate);
-            $this->processPenalties($nextDate);
-            $this->advanceSystemDate($settings, $nextDate);
-        });
-
-        Log::info('EOD process complete.');
+    protected function updateStatus(string $status, int $progress, array $logs, string $output = null)
+    {
+        $this->jobStatus->update([
+            'status' => $status,
+            'progress' => $progress,
+            'details' => ['logs' => $logs],
+            'output' => $output,
+        ]);
     }
 
     protected function autoPayZeroInstallments(Carbon $nextDate)
     {
+        $logs = [];
         $zeroPayments = RepaymentSchedule::with('loan')
             ->where('status', 'pending')
             ->where('payment_amount', '=', 0)
@@ -56,17 +94,20 @@ class ProcessEodJob implements ShouldQueue
             $payment->paid_on  = $payment->due_date;
             $payment->save();
 
-            $this->line(sprintf(
+            $logs[] = sprintf(
                 'Auto-paid $0 installment: payment #%s for loan %s (due %s).',
                 $payment->payment_number,
                 $payment->loan->loan_identifier,
                 Carbon::parse($payment->due_date)->toDateString()
-            ));
+            );
         }
+        
+        return $logs;
     }
 
     protected function applyCreditBalance(Carbon $runDate, Carbon $nextDate)
     {
+        $logs = [];
         $pendingPayments = RepaymentSchedule::with('loan')
             ->whereIn('status', ['pending', 'due', 'late', 'partially_paid'])
             ->orderBy('payment_number')
@@ -169,14 +210,17 @@ class ProcessEodJob implements ShouldQueue
                 'notes'          => "EOD auto-applied credit to installment #{$payment->payment_number}",
             ]);
 
-            $this->line("Applied $$applied to payment #{$payment->payment_number} for loan {$loan->loan_identifier} | Penalty: $deductPenalty, Interest: $deductInterest, Principal: $deductPrincipal | Remaining credit: {$loan->credit_balance}");
+            $logs[] = "Applied $$applied to payment #{$payment->payment_number} for loan {$loan->loan_identifier} | Penalty: $deductPenalty, Interest: $deductInterest, Principal: $deductPrincipal | Remaining credit: {$loan->credit_balance}";
 
             $processedLoanIds[$loan->id] = true;
         }
+
+        return $logs;
     }
 
     protected function processPenalties(Carbon $nextDate)
     {
+        $logs = [];
         $latePayments = RepaymentSchedule::with('loan.loanType')
             ->whereIn('status', ['pending', 'due', 'late', 'partially_paid'])
             ->where('payment_amount', '>', 0)
@@ -184,78 +228,77 @@ class ProcessEodJob implements ShouldQueue
             ->get();
 
         if ($latePayments->isEmpty()) {
-            Log::info('No late payments found.');
-            return;
-        }
+            $logs[] = 'No zero-amount installments to auto-pay.';
+        } else {
+            foreach ($latePayments as $payment) {
+                $loanType  = $payment->loan->loanType;
+                $graceDays = $loanType->grace_days ?? 0;
 
-        Log::info("Found {$latePayments->count()} payment(s) to process for penalties.");
+                $dueDate      = Carbon::parse($payment->due_date);
+                $graceEndDate = $dueDate->copy()->addDays($graceDays);
 
-        foreach ($latePayments as $payment) {
-            $loanType  = $payment->loan->loanType;
-            $graceDays = $loanType->grace_days ?? 0;
-
-            $dueDate      = Carbon::parse($payment->due_date);
-            $graceEndDate = $dueDate->copy()->addDays($graceDays);
-
-            if ($payment->status === 'paid' || bccomp($payment->amount_paid ?? '0.00', $payment->payment_amount, 2) >= 0) {
-                continue;
-            }
-
-            $lastPenaltyDate = $payment->last_penalty_date
-                ? Carbon::parse($payment->last_penalty_date)
-                : null;
-
-            if ($nextDate->gt($dueDate) && $nextDate->lte($graceEndDate)) {
-                if ($payment->status !== 'partially_paid') {
-                    $payment->status = 'due';
-                }
-                $payment->save();
-                continue;
-            }
-
-            if ($nextDate->gt($graceEndDate)) {
-                $penaltyStartDate = $lastPenaltyDate ?? $dueDate;
-                $newDays = $penaltyStartDate->diffInDays($nextDate);
-                if ($newDays <= 0) continue;
-
-                $remainingAmount = bcsub($payment->payment_amount, $payment->amount_paid ?? '0.00', 2);
-                if (bccomp($remainingAmount, '0.00', 2) <= 0) continue;
-
-                $dailyPenalty = '0.00';
-                if ($loanType->penalty_type === 'flat_fee') {
-                    $dailyPenalty = $loanType->penalty_amount;
-                } elseif ($loanType->penalty_type === 'percentage') {
-                    $dailyPenalty = bcmul($remainingAmount, bcdiv($loanType->penalty_amount, '100', 8), 2);
+                if ($payment->status === 'paid' || bccomp($payment->amount_paid ?? '0.00', $payment->payment_amount, 2) >= 0) {
+                    continue;
                 }
 
-                $penaltyToApply = bcmul($dailyPenalty, $newDays, 2);
+                $lastPenaltyDate = $payment->last_penalty_date
+                    ? Carbon::parse($payment->last_penalty_date)
+                    : null;
 
-                $payment->status            = 'late';
-                $payment->penalty_amount    = bcadd($payment->penalty_amount ?? '0.00', $penaltyToApply, 2);
-                $payment->last_penalty_date = $nextDate;
-                $payment->save();
+                if ($nextDate->gt($dueDate) && $nextDate->lte($graceEndDate)) {
+                    if ($payment->status !== 'partially_paid') {
+                        $payment->status = 'due';
+                    }
+                    $payment->save();
+                    continue;
+                }
 
-                $this->line(sprintf(
-                    'Applied $%s penalty (%s days @ $%s/day) to payment #%s for loan %s (due %s, grace %d, remaining $%s).',
-                    $penaltyToApply,
-                    $newDays,
-                    $dailyPenalty,
-                    $payment->payment_number,
-                    $payment->loan->loan_identifier,
-                    $dueDate->toDateString(),
-                    $graceDays,
-                    $remainingAmount
-                ));
+                if ($nextDate->gt($graceEndDate)) {
+                    $penaltyStartDate = $lastPenaltyDate ?? $dueDate;
+                    $newDays = $penaltyStartDate->diffInDays($nextDate);
+                    if ($newDays <= 0) continue;
+
+                    $remainingAmount = bcsub($payment->payment_amount, $payment->amount_paid ?? '0.00', 2);
+                    if (bccomp($remainingAmount, '0.00', 2) <= 0) continue;
+
+                    $dailyPenalty = '0.00';
+                    if ($loanType->penalty_type === 'flat_fee') {
+                        $dailyPenalty = $loanType->penalty_amount;
+                    } elseif ($loanType->penalty_type === 'percentage') {
+                        $dailyPenalty = bcmul($remainingAmount, bcdiv($loanType->penalty_amount, '100', 8), 2);
+                    }
+
+                    $penaltyToApply = bcmul($dailyPenalty, $newDays, 2);
+
+                    $payment->status            = 'late';
+                    $payment->penalty_amount    = bcadd($payment->penalty_amount ?? '0.00', $penaltyToApply, 2);
+                    $payment->last_penalty_date = $nextDate;
+                    $payment->save();
+
+                    $logs[] = sprintf(
+                        'Applied $%s penalty (%s days @ $%s/day) to payment #%s for loan %s (due %s, grace %d, remaining $%s).',
+                        $penaltyToApply,
+                        $newDays,
+                        $dailyPenalty,
+                        $payment->payment_number,
+                        $payment->loan->loan_identifier,
+                        $dueDate->toDateString(),
+                        $graceDays,
+                        $remainingAmount
+                    );
+                }
             }
         }
 
-        Log::info('Successfully processed all late payments.');
+        return $logs;
     }
 
     protected function advanceSystemDate(Setting $settings, Carbon $nextDate)
     {
+        $logs = [];
         $settings->system_date = $nextDate;
         $settings->save();
-        Log::info("System date has been advanced to: {$settings->system_date->toDateString()}");
+        $logs[] = "System date has been advanced to: {$settings->system_date->toDateString()}";
+        return $logs;
     }
 }

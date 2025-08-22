@@ -5,6 +5,7 @@ namespace App\LoanManagement\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\LoanManagement\Models\Setting;
 use App\LoanManagement\Jobs\ProcessEodJob;
+use App\LoanManagement\Models\JobStatus;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Artisan;
@@ -41,29 +42,25 @@ class SettingController extends Controller
         return redirect()->route('admin.settings.index')->with('success', 'System settings have been updated.');
     }
 
-    /**
-     * Manually trigger the End-of-Day process and advance the date on success.
-     */
     public function runEod()
     {
-        ProcessEodJob::dispatch();
+        $jobStatus = JobStatus::create([
+            'name' => 'End-of-Day Process',
+            'status' => 'queued',
+        ]);
 
-        return redirect()->route('admin.settings.eodProgress')->with('success', 'The End-of-Day process has been started in the background.');
+        ProcessEodJob::dispatch($jobStatus);
+
+        return redirect()->route('admin.settings.eodProgress', ['jobStatus' => $jobStatus]);
     }
 
-    /**
-     * Display the EOD progress page.
-     */
-    public function eodProgress()
+    public function eodProgress(JobStatus $jobStatus)
     {
-        $logPath = storage_path('logs/laravel.log');
-        $logContent = '';
+        return view('loan-management.admin.settings.eod-progress', compact('jobStatus'));
+    }
 
-        if (File::exists($logPath)) {
-            $lines = file($logPath);
-            $logContent = implode('', array_slice($lines, -50));
-        }
-
-        return view('loan-management.admin.settings.eod-progress', compact('logContent'));
+    public function getEodStatus(JobStatus $jobStatus)
+    {
+        return response()->json($jobStatus);
     }
 }
