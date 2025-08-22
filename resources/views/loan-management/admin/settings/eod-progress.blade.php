@@ -25,10 +25,10 @@
                     </div>
 
                     <!-- Log Output -->
-                    <div>
+                    <!-- <div>
                         <h4 class="font-semibold mb-2">Live Log:</h4>
                         <pre x-text="formattedLogs" class="p-4 bg-gray-900 text-white text-xs rounded-md whitespace-pre-wrap h-96 overflow-y-auto"></pre>
-                    </div>
+                    </div> -->
 
                     <!-- Final Message -->
                     <div x-show="isFinished" class="mt-6" style="display: none;">
@@ -69,7 +69,6 @@
                 interval: null,
 
                 startPolling() {
-                    console.log('Starting to poll for Job ID:', this.jobId);
                     if (!this.jobId) {
                         this.title = 'Error: Job ID not found.';
                         return;
@@ -89,14 +88,12 @@
                             return response.json();
                         })
                         .then(data => {
-                            console.log('Received data:', data);
-                            this.title = `EOD Process - ${data.status.charAt(0).toUpperCase() + data.status.slice(1)}`;
-                            this.status = data.status;
+                            this.title = `EOD Process`;
+                            this.status = data.status.charAt(0).toUpperCase() + data.status.slice(1);
                             this.progress = data.progress;
                             this.logs = data.details && data.details.logs ? data.details.logs : ['Waiting for logs...'];
 
                             if (data.status === 'completed' || data.status === 'failed') {
-                                console.log('Job finished with status:', data.status);
                                 this.isFinished = true;
                                 this.finalStatus = data.status;
                                 this.finalOutput = data.output;
