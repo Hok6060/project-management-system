@@ -59,6 +59,9 @@
                                 <x-dropdown-link :href="route('loans.admin.index')">
                                     {{ __('Manage Loans') }}
                                 </x-dropdown-link>
+                                <x-dropdown-link :href="route('loans.admin.payoffs.index')">
+                                    {{ __('Loan Payoffs') }}
+                                </x-dropdown-link>
                             @endif
                         </div>
                     </div>
@@ -260,6 +263,9 @@
                     @if (in_array(Auth::user()->role, ['admin', 'loan_officer']))
                         <x-dropdown-link :href="route('loans.admin.index')">
                             {{ __('Manage Loans') }}
+                        </x-dropdown-link>
+                        <x-dropdown-link :href="route('loans.admin.payoffs.index')">
+                            {{ __('Loan Payoffs') }}
                         </x-dropdown-link>
                     @endif
                 </div>

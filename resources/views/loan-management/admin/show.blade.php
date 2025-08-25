@@ -233,7 +233,7 @@
 
         <div class="mt-4">
             <x-input-label for="payment_date" value="Payment Date" />
-            <x-text-input id="payment_date" name="payment_date" type="date" class="mt-1 block w-full" value="{{ now()->format('Y-m-d') }}" required />
+            <x-text-input id="payment_date" name="payment_date" type="date" class="mt-1 block w-full" value="{{ \Carbon\Carbon::parse($systemDate)->format('Y-m-d') }}" required />
         </div>
 
         <div class="mt-4">

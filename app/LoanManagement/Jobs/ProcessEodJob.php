@@ -45,6 +45,7 @@ class ProcessEodJob implements ShouldQueue
             $nextDate = $runDate->copy()->addDay()->startOfDay();
             
             $steps = [
+                'Activating approved loans' => fn() => $this->activateApprovedLoans($runDate),
                 'Auto-paying zero installments' => fn() => $this->autoPayZeroInstallments($nextDate),
                 'Applying customer credit' => fn() => $this->applyCreditBalance($runDate, $nextDate),
                 'Processing late penalties' => fn() => $this->processPenalties($nextDate),
@@ -78,6 +79,27 @@ class ProcessEodJob implements ShouldQueue
             'details' => ['logs' => $logs],
             'output' => $output,
         ]);
+    }
+
+    protected function activateApprovedLoans(Carbon $runDate)
+    {
+        $logs = [];
+        $loansToActivate = \App\LoanManagement\Models\Loan::where('status', 'approved')
+            ->whereDate('approval_date', '<=', $runDate)
+            ->get();
+
+        if ($loansToActivate->isEmpty()) {
+            $logs[] = 'No loans to activate today.';
+            return $logs;
+        }
+
+        foreach ($loansToActivate as $loan) {
+            $loan->status = 'active';
+            $loan->save();
+            $logs[] = "Activated loan {$loan->loan_identifier}.";
+        }
+
+        return $logs;
     }
 
     protected function autoPayZeroInstallments(Carbon $nextDate)

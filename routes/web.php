@@ -16,6 +16,7 @@ use App\LoanManagement\Http\Controllers\LoanController;
 use App\LoanManagement\Http\Controllers\CustomerController;
 use App\LoanManagement\Http\Controllers\SettingController;
 use App\LoanManagement\Http\Controllers\TransactionController;
+use App\LoanManagement\Http\Controllers\LoanPayoffController;
 
 Route::get('/', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])->name('dashboard');
@@ -104,6 +105,11 @@ Route::middleware(['auth', \App\LoanManagement\Http\Middleware\CanManageLoans::c
     Route::patch('/loans/{loan}/assign', [LoanController::class, 'assignOfficer'])->name('assign');
     Route::post('/loans/{loan}/cancel', [LoanController::class, 'cancel'])->name('cancel');
     Route::post('/loans/{loan}/pay', [TransactionController::class, 'store'])->name('payment.store');
+
+    // Loan Payoff Routes
+    Route::get('/payoffs', [LoanPayoffController::class, 'index'])->name('payoffs.index');
+    Route::get('/payoffs/create', [LoanPayoffController::class, 'create'])->name('payoffs.create');
+    Route::get('/payoffs/calculate', [LoanPayoffController::class, 'calculate'])->name('payoffs.calculate');
 });
 
 require __DIR__.'/auth.php';

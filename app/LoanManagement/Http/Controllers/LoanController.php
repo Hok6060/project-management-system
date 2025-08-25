@@ -7,6 +7,7 @@ use App\LoanManagement\Services\LoanCalculationService;
 use App\LoanManagement\Models\Loan;
 use App\LoanManagement\Models\LoanType;
 use App\LoanManagement\Models\Customer;
+use App\LoanManagement\Models\Setting;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -58,7 +59,9 @@ class LoanController extends Controller
 
         $loanOfficers = User::whereIn('role', ['admin', 'loan_officer'])->orderBy('name')->get();
 
-        return view('loan-management.admin.show', compact('loan', 'schedules', 'loanOfficers'));
+        $systemDate = Setting::first()->system_date;
+
+        return view('loan-management.admin.show', compact('loan', 'schedules', 'loanOfficers', 'systemDate'));
     }
     
     /**
