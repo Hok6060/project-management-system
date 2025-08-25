@@ -5,9 +5,11 @@
                 {{ __('Loan Application') }}: {{ $loan->loan_identifier }}
             </h2>
             <div class="flex items-center space-x-4">
-                <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'record-customer-payment-modal')">
-                    Record Payment
-                </x-primary-button>
+                @if ($loan->status === 'approved' || $loan->status === 'active')
+                    <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'record-customer-payment-modal')">
+                        Record Payment
+                    </x-primary-button>
+                @endif
                 @if ($loan->status === 'pending')
                     <a href="{{ route('loans.admin.edit', $loan) }}" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded text-sm">
                         Edit Application

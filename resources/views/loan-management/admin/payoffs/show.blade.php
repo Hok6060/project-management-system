@@ -44,15 +44,23 @@
                         <span>$ {{ number_format($totalPayoff, 2) }}</span>
                     </div>
 
-                    <!-- We will add the confirmation form here in the next step -->
                     <div class="mt-6 border-t dark:border-gray-700 pt-6">
-                         <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Confirm Payoff Payment</h3>
-                         <p class="text-sm text-gray-500 dark:text-gray-400">This action will record the final payment, close all remaining installments, and mark the loan as 'Completed'. This cannot be undone.</p>
-                         <div class="mt-4">
-                            <x-danger-button>
-                                {{ __('Confirm and Record Payoff') }}
-                            </x-danger-button>
-                         </div>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Confirm Payoff</h3>
+                        
+                        @if (bccomp($loan->credit_balance, $totalPayoff, 2) >= 0)
+                            <p class="text-sm text-gray-600 dark:text-gray-400">The customer has sufficient credit to pay off this loan. This action will use the credit balance to close the loan. This cannot be undone.</p>
+                            <form method="POST" action="{{ route('loans.admin.payoffs.store', $loan) }}" class="mt-4">
+                                @csrf
+                                <input type="hidden" name="payoff_date" value="{{ $payoffDate->format('Y-m-d') }}">
+                                <x-danger-button onclick="return confirm('Are you sure you want to use the credit balance to pay off this loan?')">
+                                    {{ __('Confirm and Close Loan') }}
+                                </x-danger-button>
+                            </form>
+                        @else
+                            <p class="text-sm text-red-600 dark:text-red-400">
+                                <strong>Insufficient Credit Balance.</strong> The customer does not have enough available credit to pay off this loan. Please record additional payments first.
+                            </p>
+                        @endif
                     </div>
                 </div>
             </div>

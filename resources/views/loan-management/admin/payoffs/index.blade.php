@@ -24,7 +24,7 @@
                                     <th scope="col" class="px-6 py-3">Loan Type</th>
                                     <th scope="col" class="px-6 py-3">Amount</th>
                                     <th scope="col" class="px-6 py-3">Completed On</th>
-                                    <th scope="col" class="px-6 py-3"><span class="sr-only">View</span></th>
+                                    <th scope="col" class="px-6 py-3">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -37,7 +37,7 @@
                                     <td class="px-6 py-4">{{ $loan->loanType->name }}</td>
                                     <td class="px-6 py-4">${{ number_format($loan->principal_amount, 2) }}</td>
                                     <td class="px-6 py-4">{{ \Carbon\Carbon::parse($loan->updated_at)->format('M d, Y') }}</td>
-                                    <td class="px-6 py-4 text-right">
+                                    <td class="px-6 py-4">
                                         <a href="{{ route('loans.admin.show', $loan) }}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">View</a>
                                     </td>
                                 </tr>

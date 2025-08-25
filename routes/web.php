@@ -110,6 +110,7 @@ Route::middleware(['auth', \App\LoanManagement\Http\Middleware\CanManageLoans::c
     Route::get('/payoffs', [LoanPayoffController::class, 'index'])->name('payoffs.index');
     Route::get('/payoffs/create', [LoanPayoffController::class, 'create'])->name('payoffs.create');
     Route::get('/payoffs/calculate', [LoanPayoffController::class, 'calculate'])->name('payoffs.calculate');
+    Route::post('/payoffs/{loan}', [LoanPayoffController::class, 'store'])->name('payoffs.store');
 });
 
 require __DIR__.'/auth.php';
