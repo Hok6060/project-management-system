@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Style the main container of the dropdown */
+.ts-control {
+    @apply block w-full mt-1 h-[41px] items-center border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-lg;
+    @apply px-4 py-2;
+}
+
+/* Style the dropdown panel that appears when you click */
+.ts-dropdown {
+    @apply bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-lg;
+}
+
+
+/* Style the individual options in the dropdown */
+.ts-dropdown .option {
+    @apply px-4 py-2 text-base text-gray-700 dark:text-gray-300;
+}
+
+/* Style the highlighted/active option */
+.ts-dropdown .option.active {
+    @apply bg-indigo-500 text-white;
+}

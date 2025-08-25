@@ -17,7 +17,7 @@
                             <!-- Select Active Loan -->
                             <div>
                                 <x-input-label for="loan_id" :value="__('Select an Active Loan')" />
-                                <select id="loan_id" name="loan_id" class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
+                                <select id="select-loan" name="loan_id" autocomplete="off">
                                     <option value="">-- Please choose a loan --</option>
                                     @foreach ($activeLoans as $loan)
                                         <option value="{{ $loan->id }}">
@@ -47,4 +47,19 @@
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <script>        
+        document.addEventListener('DOMContentLoaded', function () {
+            new TomSelect('#select-loan',{
+                plugins: ['dropdown_input'],
+                create: false,
+                clean: true,
+                sortField: {
+                    field: "text",
+                    direction: "asc"
+                }
+            });
+        });
+    </script>
 </x-app-layout>
