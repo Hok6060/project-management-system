@@ -68,4 +68,9 @@ class Loan extends Model
     {
         return $this->hasMany(Transaction::class)->latest();
     }
+
+    public function waivers()
+    {
+        return $this->hasMany(LoanWaiver::class)->latest();
+    }
 }

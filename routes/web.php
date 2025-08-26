@@ -17,6 +17,7 @@ use App\LoanManagement\Http\Controllers\CustomerController;
 use App\LoanManagement\Http\Controllers\SettingController;
 use App\LoanManagement\Http\Controllers\TransactionController;
 use App\LoanManagement\Http\Controllers\LoanPayoffController;
+use App\LoanManagement\Http\Controllers\LoanWaiverController;
 
 Route::get('/', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])->name('dashboard');
@@ -94,6 +95,10 @@ Route::middleware(['auth', \App\ProjectManagement\Http\Middleware\IsAdmin::class
     Route::post('/settings/run-eod', [SettingController::class, 'runEod'])->name('settings.runEod');
     Route::get('/settings/eod-progress/{jobStatus}', [SettingController::class, 'eodProgress'])->name('settings.eodProgress');
     Route::get('/eod-status/{jobStatus}', [SettingController::class, 'getEodStatus'])->name('eod.status');
+
+    // Waiver Approval Routes
+    Route::get('/waivers', [LoanWaiverController::class, 'index'])->name('waivers.index');
+    Route::patch('/waivers/{waiver}', [LoanWaiverController::class, 'update'])->name('waivers.update');
 });
 
 // --- Loan Management Routes (for Admins and Loan Officers) ---
@@ -111,6 +116,11 @@ Route::middleware(['auth', \App\LoanManagement\Http\Middleware\CanManageLoans::c
     Route::get('/payoffs/create', [LoanPayoffController::class, 'create'])->name('payoffs.create');
     Route::get('/payoffs/calculate', [LoanPayoffController::class, 'calculate'])->name('payoffs.calculate');
     Route::post('/payoffs/{loan}', [LoanPayoffController::class, 'store'])->name('payoffs.store');
+
+    // Loan Waiver Routes
+    Route::get('/loans/{loan}/waivers/create', [LoanWaiverController::class, 'create'])->name('waivers.create');
+    Route::post('/loans/{loan}/waivers', [LoanWaiverController::class, 'store'])->name('waivers.store');
+    Route::get('/loans/{loan}/waivers/calculate-max', [LoanWaiverController::class, 'calculateMaxWaiver'])->name('waivers.calculateMax');
 });
 
 require __DIR__.'/auth.php';

@@ -9,6 +9,9 @@
                     <x-primary-button x-data="" x-on:click.prevent="$dispatch('open-modal', 'record-customer-payment-modal')">
                         Record Payment
                     </x-primary-button>
+                    <a href="{{ route('loans.admin.waivers.create', $loan) }}" class="inline-flex items-center px-4 py-2 bg-yellow-500 hover:bg-yellow-700 text-white font-bold rounded-md text-sm">
+                        Request Waiver
+                    </a>
                 @endif
                 @if ($loan->status === 'pending')
                     <a href="{{ route('loans.admin.edit', $loan) }}" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded text-sm">
@@ -35,7 +38,7 @@
                         </div>
                         <div>
                             <h4 class="font-semibold">Status</h4>
-                            <p class="text-gray-600 dark:text-gray-400">{{ ucfirst($loan->status) }}</p>
+                            <p class="text-gray-600 dark:text-gray-400">{{ ucwords($loan->status) }}</p>
                         </div>
                         <div>
                             <h4 class="font-semibold">Loan Type</h4>
@@ -160,6 +163,45 @@
                             </div>
                         @empty
                             <p class="text-gray-500 dark:text-gray-400">No transactions have been recorded for this loan yet.</p>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+
+            <!-- Waiver Requests -->
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900 dark:text-gray-100">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Waiver Requests</h3>
+                    <div class="space-y-4">
+                        @forelse ($loan->waivers as $waiver)
+                            <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                <div class="flex items-center justify-between">
+                                    <p class="font-semibold text-gray-900 dark:text-white">
+                                        ${{ number_format($waiver->amount, 2) }} {{ ucwords(str_replace('_', ' ', $waiver->waiver_type)) }} Waiver
+                                    </p>
+                                    @if($waiver->status == 'approved')
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                            {{ ucwords($waiver->status) }}
+                                        </span>
+                                    @elseif($waiver->status == 'pending')
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                            {{ ucwords($waiver->status) }}
+                                        </span>
+                                    @else
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                            {{ ucwords($waiver->status) }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    Requested by {{ $waiver->requester->name }} on {{ $waiver->created_at->format('M d, Y') }}
+                                </p>
+                                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 border-l-2 border-gray-300 dark:border-gray-600 pl-2 italic">
+                                    "{{ $waiver->reason }}"
+                                </p>
+                            </div>
+                        @empty
+                            <p class="text-gray-500 dark:text-gray-400">No waiver requests have been made for this loan.</p>
                         @endforelse
                     </div>
                 </div>
